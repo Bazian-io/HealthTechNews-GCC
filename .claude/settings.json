@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:3000/api/test-supabase)",
+      "Bash(curl -s -i http://localhost:3000/api/test-supabase)",
+      "Bash(npx supabase *)",
+      "Bash(yes \"\")",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:3000 -o /tmp_homepage.html -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(grep -o \"Saudi HealthTech Startup Expands Digital Care Platform\" /tmp_homepage.html)",
+      "Bash(grep -o \"Saudi Arabia\" /tmp_homepage.html)",
+      "Bash(grep -o \"Digital Health\" /tmp_homepage.html)",
+      "Bash(grep -o \"Read original\" /tmp_homepage.html)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(rm -rf \"/Users/bazianprudens/Library/Mobile Documents/com~apple~CloudDocs/My Files/Projects/AI/gcc-healthtech-news/.next\")"
+    ]
+  }
+}
