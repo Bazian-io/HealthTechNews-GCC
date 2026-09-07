@@ -13,7 +13,8 @@
       "Bash(grep -o \"Read original\" /tmp_homepage.html)",
       "Bash(pkill -f \"next dev\")",
       "Bash(rm -rf \"/Users/bazianprudens/Library/Mobile Documents/com~apple~CloudDocs/My Files/Projects/AI/gcc-healthtech-news/.next\")",
-      "Bash(git -C \"/Users/bazianprudens/Library/Mobile Documents/com~apple~CloudDocs/My Files/Projects/AI/gcc-healthtech-news\" status --short)"
+      "Bash(git -C \"/Users/bazianprudens/Library/Mobile Documents/com~apple~CloudDocs/My Files/Projects/AI/gcc-healthtech-news\" status --short)",
+      "Bash(git config *)"
     ]
   }
 }
