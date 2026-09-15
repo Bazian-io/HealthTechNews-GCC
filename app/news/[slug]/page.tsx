@@ -16,14 +16,18 @@ export const instant = false;
 
 async function getPublishedArticleBySlug(slug: string) {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("articles")
     .select("title, summary, country, category, original_url, published_at")
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
 
-  return data;
+  if (error) {
+    console.error("Failed to load published article:", error);
+  }
+
+  return { article: data, hasError: Boolean(error) };
 }
 
 export default async function ArticlePage({
@@ -32,7 +36,21 @@ export default async function ArticlePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const article = await getPublishedArticleBySlug(slug);
+  const { article, hasError } = await getPublishedArticleBySlug(slug);
+
+  if (hasError) {
+    return (
+      <main className="min-h-screen flex flex-col items-center justify-center gap-4 text-center p-5">
+        <h1 className="text-xl font-medium">Unable to load article</h1>
+        <p role="alert" className="text-sm text-muted-foreground">
+          We couldn&apos;t load this article. Please try again later.
+        </p>
+        <Link href={"/"} className="text-sm font-medium hover:underline">
+          Back to homepage
+        </Link>
+      </main>
+    );
+  }
 
   if (!article) {
     notFound();
