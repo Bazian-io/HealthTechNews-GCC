@@ -21,7 +21,7 @@ export const instant = false;
 
 type Article = {
   id: string;
-  slug: string;
+  slug: string | null;
   title: string;
   summary: string | null;
   country: string | null;
@@ -84,12 +84,16 @@ export default async function Home() {
                   <Card key={article.id}>
                     <CardHeader>
                       <CardTitle>
-                        <Link
-                          href={`/news/${article.slug}`}
-                          className="hover:underline"
-                        >
-                          {article.title}
-                        </Link>
+                        {article.slug?.trim() ? (
+                          <Link
+                            href={`/news/${article.slug}`}
+                            className="hover:underline"
+                          >
+                            {article.title}
+                          </Link>
+                        ) : (
+                          article.title
+                        )}
                       </CardTitle>
                       <CardDescription>
                         {[article.country, article.category]
@@ -102,14 +106,16 @@ export default async function Home() {
                     {article.summary && (
                       <CardContent>{article.summary}</CardContent>
                     )}
-                    <CardFooter>
-                      <Link
-                        href={`/news/${article.slug}`}
-                        className="text-sm font-medium hover:underline"
-                      >
-                        Read article
-                      </Link>
-                    </CardFooter>
+                    {article.slug?.trim() && (
+                      <CardFooter>
+                        <Link
+                          href={`/news/${article.slug}`}
+                          className="text-sm font-medium hover:underline"
+                        >
+                          Read article
+                        </Link>
+                      </CardFooter>
+                    )}
                   </Card>
                 ))
               )}
