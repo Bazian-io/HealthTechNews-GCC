@@ -1,0 +1,22 @@
+{
+  "articles": [
+    {
+      "url": "https://news.example.com/saudi-telemedicine?story=7&utm_source=gdelt#top",
+      "url_mobile": "",
+      "title": "Saudi telemedicine platform launches remote consultations",
+      "seendate": "20261007T120000Z",
+      "socialimage": "https://news.example.com/image.jpg",
+      "domain": "news.example.com",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "http://moh.gov.sa/en/Ministry/MediaCenter/News/Pages/example.aspx?utm_medium=search",
+      "title": "Remote robotic surgery programme expands",
+      "seendate": "20261006T090000Z",
+      "domain": "moh.gov.sa",
+      "language": "English",
+      "sourcecountry": "Saudi Arabia"
+    }
+  ]
+}

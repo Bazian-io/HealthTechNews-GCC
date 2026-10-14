@@ -24,6 +24,9 @@ type Article = {
   slug: string | null;
   title: string;
   summary: string | null;
+  source_name: string | null;
+  source_description: string | null;
+  original_url: string;
   country: string | null;
   category: string | null;
   published_at: string | null;
@@ -36,9 +39,10 @@ async function getPublishedArticles(): Promise<{
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("articles")
-    .select("id, slug, title, summary, country, category, published_at")
+    .select("id, slug, title, summary, source_name, source_description, original_url, country, category, published_at")
     .eq("status", "published")
-    .order("published_at", { ascending: false });
+    // Recently added stories stay visible even when their source date is unknown.
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("Failed to load published articles:", error);
@@ -96,24 +100,29 @@ export default async function Home() {
                         )}
                       </CardTitle>
                       <CardDescription>
-                        {[article.country, article.category]
+                        {[article.source_name, article.country, article.category,
+                          article.published_at ? new Date(article.published_at).toLocaleDateString() : null]
                           .filter(Boolean)
                           .join(" · ")}
-                        {article.published_at &&
-                          ` · ${new Date(article.published_at).toLocaleDateString()}`}
                       </CardDescription>
                     </CardHeader>
-                    {article.summary && (
-                      <CardContent>{article.summary}</CardContent>
+                    {(article.summary || article.source_description) && (
+                      <CardContent>
+                        {!article.summary && <p className="mb-2 text-xs text-muted-foreground">Publisher excerpt</p>}
+                        <p className="leading-relaxed">{article.summary || article.source_description}</p>
+                      </CardContent>
                     )}
                     {article.slug?.trim() && (
-                      <CardFooter>
+                      <CardFooter className="flex flex-wrap gap-4">
                         <Link
                           href={`/news/${article.slug}`}
                           className="text-sm font-medium hover:underline"
                         >
                           Read article
                         </Link>
+                        <a href={article.original_url} target="_blank" rel="noreferrer" className="text-sm text-muted-foreground hover:underline">
+                          Read original source ↗
+                        </a>
                       </CardFooter>
                     )}
                   </Card>

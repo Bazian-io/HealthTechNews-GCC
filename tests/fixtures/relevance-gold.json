@@ -1,0 +1,169 @@
+{
+  "rubricVersion": "draft-2",
+  "labelledOn": "2026-09-16",
+  "reviewedOn": "2026-09-17",
+  "source": "Saudi Ministry of Health English RSS feed",
+  "status": "REVIEWED - the three borderline cases were resolved as relevant on 17 September 2026. One open question remains in rubricNotes.",
+  "verdicts": {
+    "relevant": "GCC HealthTech news that belongs on the site.",
+    "not_relevant": "Collected by the feed but outside the site's subject.",
+    "borderline": "The rubric does not decide this case. None remain in this set; keep the verdict available for future labelling."
+  },
+  "rubricNotes": {
+    "audience": "A reader tracking the GCC HealthTech sector, not only its products. An article earns a place if it tells that reader something they can act on or learn the direction of the sector from.",
+    "include": [
+      "Deployed or announced health technology: digital health, telemedicine, medical robotics, health AI, connected devices.",
+      "Sector events and exhibitions in the GCC, because the reader may attend them.",
+      "Substantial health infrastructure, investment, and research partnerships, because they signal where the sector is heading."
+    ],
+    "exclude": [
+      "Ministerial diplomacy and courtesy meetings.",
+      "Statements of gratitude to national leadership.",
+      "Public health and awareness campaigns.",
+      "Appointments, nominations, and awards ceremonies."
+    ],
+    "open": "Where is the line between an included partnership and an excluded diplomatic MoU? The current set includes the Saudi NIH research MoU but excludes the Portugal and France health-cooperation MoUs. The proposed test is whether the item names concrete subject matter rather than general cooperation, but this has not been confirmed."
+  },
+  "articles": [
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-09-06-002.aspx",
+      "title": "Bahrain's Crown Prince Meets Saudi Health Minister",
+      "published_at": "2026-09-07",
+      "verdict": "not_relevant",
+      "reason": "Bilateral diplomatic meeting. GCC geography, but no technology subject."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-09-06-001.aspx",
+      "title": "Weqaya Launches \"Your Health, Your Choice\" Nutritional Campaign",
+      "published_at": "2026-09-07",
+      "verdict": "not_relevant",
+      "reason": "Public health awareness campaign, not health technology."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-09-01-003.aspx",
+      "title": "21 Certified Healthy Cities: How Saudi Arabia Leads Regionally",
+      "published_at": "2026-09-03",
+      "verdict": "not_relevant",
+      "reason": "Public health accreditation programme with no technology subject."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-09-01-002.aspx",
+      "title": "Health Minister Commends Leadership for Saudi Healthy Cities Lead",
+      "published_at": "2026-09-02",
+      "verdict": "not_relevant",
+      "reason": "Ceremonial statement of gratitude to national leadership."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-09-01-001.aspx",
+      "title": "Saudi and Portugal Health Ministers Sign MoU to Strengthen Partnership",
+      "published_at": "2026-09-02",
+      "verdict": "not_relevant",
+      "reason": "Bilateral MoU with no technology subject; counterparty outside the GCC."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-31-002.aspx",
+      "title": "Health Minister Meets Portuguese Officials to Strengthen Health Cooperation",
+      "published_at": "2026-09-02",
+      "verdict": "not_relevant",
+      "reason": "Diplomatic meeting."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-31-001.aspx",
+      "title": "Saudi Health Minister Visits Portugal to Strengthen Health Cooperation",
+      "published_at": "2026-09-01",
+      "verdict": "not_relevant",
+      "reason": "Diplomatic visit."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-29-001.aspx",
+      "title": "KKU Medical City Designated as Southern Healthcare Hub",
+      "published_at": "2026-08-30",
+      "verdict": "not_relevant",
+      "reason": "Facility designation. Service capacity rather than technology."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-25-001.aspx",
+      "title": "Minister of Health Thanks Leadership for Approving Emergency Safety Policy",
+      "published_at": "2026-08-26",
+      "verdict": "not_relevant",
+      "reason": "Ceremonial statement about a policy approval."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-24-004.aspx",
+      "title": "Saudi NIH signs MoU on Research and Clinical Innovation",
+      "published_at": "2026-08-26",
+      "verdict": "relevant",
+      "reason": "Research and clinical innovation partnership: a signal of sector direction. Note that the feed carries no description for this item, so the verdict rests on the title alone."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-24-003.aspx",
+      "title": "Saudi Arabia and France Sign MoU to Enhance Health Cooperation",
+      "published_at": "2026-08-26",
+      "verdict": "not_relevant",
+      "reason": "Bilateral MoU with no technology subject."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-24-002.aspx",
+      "title": "Saudi Arabia Nominates Dr. Balkhi for WHO Director-General",
+      "published_at": "2026-08-26",
+      "verdict": "not_relevant",
+      "reason": "Global health governance appointment."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-24-001.aspx",
+      "title": "Deputy Governor of Riyadh Witnesses Partnerships for New Health Projects",
+      "published_at": "2026-08-26",
+      "verdict": "relevant",
+      "reason": "Health infrastructure partnerships. Included as a sector-direction signal even though the technology content is unstated."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-13-001.aspx",
+      "title": "Live Well Sessions Unite Health Advocates to Shape Health Awareness",
+      "published_at": "2026-08-26",
+      "verdict": "not_relevant",
+      "reason": "Health awareness initiative."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-12-001.aspx",
+      "title": "Riyadh to Host the 9th Global Health Exhibition in October",
+      "published_at": "2026-08-13",
+      "verdict": "relevant",
+      "reason": "A major GCC sector exhibition. Included because the reader may attend it."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-11-001.aspx",
+      "title": "Health Minister Thanks Leadership for Enabling CBAHI's Global Services",
+      "published_at": "2026-08-13",
+      "verdict": "not_relevant",
+      "reason": "Ceremonial statement about a healthcare accreditation body."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-10-002.aspx",
+      "title": "KSU Medical City to Launch Saudi Remote Robotic Surgery Program",
+      "published_at": "2026-08-11",
+      "verdict": "relevant",
+      "reason": "Remote robotic surgery programme: a named medical technology deployment."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-10-001.aspx",
+      "title": "Seha Virtual Hospital Performs 11 Remote Robotic Surgeries",
+      "published_at": "2026-08-11",
+      "verdict": "relevant",
+      "reason": "Virtual hospital delivering telesurgery. A concrete digital health capability with a measurable outcome."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-09-001.aspx",
+      "title": "Virtual Care: Breaking Boundaries in Advanced Healthcare",
+      "published_at": "2026-08-09",
+      "verdict": "relevant",
+      "reason": "Explicitly about digital technologies and artificial intelligence in care delivery."
+    },
+    {
+      "original_url": "https://www.moh.gov.sa/en/Ministry/MediaCenter/News/Pages/news-2026-08-06-001.aspx",
+      "title": "Saudi Patient Safety Center Honors National Award Winners",
+      "published_at": "2026-08-09",
+      "verdict": "not_relevant",
+      "reason": "Awards ceremony on patient safety, not technology."
+    }
+  ]
+}

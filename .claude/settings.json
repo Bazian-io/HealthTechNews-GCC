@@ -14,7 +14,26 @@
       "Bash(pkill -f \"next dev\")",
       "Bash(rm -rf \"/Users/bazianprudens/Library/Mobile Documents/com~apple~CloudDocs/My Files/Projects/AI/gcc-healthtech-news/.next\")",
       "Bash(git -C \"/Users/bazianprudens/Library/Mobile Documents/com~apple~CloudDocs/My Files/Projects/AI/gcc-healthtech-news\" status --short)",
-      "Bash(git config *)"
+      "Bash(git config *)",
+      "Bash(node -p \"require\\('next/package.json'\\).version\")",
+      "Bash(echo \"exit: $?\")",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(npx eslint *)",
+      "Bash(node -e ' *)",
+      "Bash(npx tsc *)",
+      "Read(//private/tmp/claude-501/bundled-skills/2.1.273/9e07e4eaaef83b4a73506b2cfd4daa4f/claude-api/typescript/claude-api/**)",
+      "Bash(ant auth *)",
+      "Bash(grep -n \"output_config\\\\|Structured Output\\\\|structured output\\\\|format\" /private/tmp/claude-501/bundled-skills/2.1.273/9e07e4eaaef83b4a73506b2cfd4daa4f/claude-api/typescript/claude-api/tool-use.md | head -40)",
+      "Bash(grep -n -A 25 \"output_config\" /private/tmp/claude-501/bundled-skills/2.1.273/9e07e4eaaef83b4a73506b2cfd4daa4f/claude-api/curl/examples.md | head -60)",
+      "Read(//private/tmp/claude-501/bundled-skills/2.1.273/9e07e4eaaef83b4a73506b2cfd4daa4f/claude-api/curl/**)",
+      "Bash(grep -n \"tool_choice\" /private/tmp/claude-501/bundled-skills/2.1.273/9e07e4eaaef83b4a73506b2cfd4daa4f/claude-api/typescript/claude-api/tool-use.md /private/tmp/claude-501/bundled-skills/2.1.273/9e07e4eaaef83b4a73506b2cfd4daa4f/claude-api/shared/tool-use-concepts.md | head -20)",
+      "Bash(npm install *)",
+      "Bash(node -p \"'installed @anthropic-ai/sdk ' + require\\('@anthropic-ai/sdk/package.json'\\).version\")",
+      "Bash(node --input-type=module -e ' *)",
+      "Bash(node --test tests/relevance.test.mjs)",
+      "Bash(sed -n '/^\\\\[/,$p')",
+      "Bash(node \"/private/tmp/claude-501/-Users-bazianprudens-Library-Mobile-Documents-com-apple-CloudDocs-My-Files-Projects-AI-gcc-healthtech-news/2fb68751-633f-4fc0-bb77-7b08fc8cb02d/scratchpad/rules-experiment.mjs\")"
     ]
   }
 }

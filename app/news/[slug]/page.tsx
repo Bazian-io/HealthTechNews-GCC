@@ -18,7 +18,7 @@ async function getPublishedArticleBySlug(slug: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("articles")
-    .select("title, summary, country, category, original_url, published_at")
+    .select("title, summary, source_name, source_description, country, category, original_url, published_at")
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
@@ -69,14 +69,18 @@ export default async function ArticlePage({
           <CardHeader>
             <CardTitle className="text-2xl">{article.title}</CardTitle>
             <CardDescription>
-              {[article.country, article.category]
+              {[article.source_name, article.country, article.category,
+                article.published_at ? new Date(article.published_at).toLocaleDateString() : null]
                 .filter(Boolean)
                 .join(" · ")}
-              {article.published_at &&
-                ` · ${new Date(article.published_at).toLocaleDateString()}`}
             </CardDescription>
           </CardHeader>
-          {article.summary && <CardContent>{article.summary}</CardContent>}
+          {(article.summary || article.source_description) && (
+            <CardContent>
+              {!article.summary && <p className="mb-2 text-xs text-muted-foreground">Publisher excerpt</p>}
+              <p className="leading-relaxed">{article.summary || article.source_description}</p>
+            </CardContent>
+          )}
           <CardFooter>
             <a
               href={article.original_url}
