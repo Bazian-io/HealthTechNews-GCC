@@ -74,8 +74,8 @@ alone does not establish relevance. Publication workflow and scheduling are plan
   Optional `--country` and `--days` (1–30) bound a run. New published rows affect
   every website sharing the configured database, even without a code deployment.
   Existing RSS/GDELT commands and public read-only RLS remain unchanged.
-- Full-project lint has a recorded existing `require()` error in
-  `tailwind.config.ts`; report pre-existing failures separately from new ones.
+- Full-project lint should pass. The Tailwind plugin uses an ESM import so it is
+  compatible with the Next.js 16 ESLint flat configuration.
 - Next.js has Cache Components enabled. Article pages currently use
   `instant = false` for request-time reads; consult installed docs before changing it.
 - `/protected` and authentication tutorial components are starter material, not

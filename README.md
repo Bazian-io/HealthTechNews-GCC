@@ -9,10 +9,11 @@ The goal is to have fresh, relevant news ready on the website each morning.
 
 ## Current milestone
 
-**As of 10 October 2026:** FreeNewsAPI.ai is the primary news source for this
+**As of 14 October 2026:** FreeNewsAPI.ai is the primary news source for this
 initial version. Its collector automatically publishes new articles that pass a
 basic GCC HealthTech keyword filter, as explicitly requested. RSS and GDELT remain
-available and save drafts only. Code changes are local until separately deployed.
+available and save drafts only. The feature branch is not deployed until it is
+merged and the production deployment completes.
 
 | Working now | Still to build |
 | --- | --- |
@@ -436,6 +437,22 @@ npx tsc --noEmit
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
 
+**Recorded pre-production review on 14 October 2026:**
+
+- Reviewed every file in the feature branch and preserved the publication,
+  duplicate, metadata, credential, RLS, and draft-only boundaries documented above.
+- Updated Next.js and `eslint-config-next` to 16.4.0 after a production dependency
+  audit found a critical advisory in 16.3.4. The final production-only audit
+  reported zero vulnerabilities.
+- All 78 offline tests, full-project lint, TypeScript, `git diff --check`, and the
+  Next.js 16.4.0 production build passed.
+- A current UAE 30-day FreeNewsAPI.ai dry run completed all three searches with
+  30 raw results, 14 unique keyword matches, 5 overlapping URLs, 11 filtered
+  results, no failures, and no database writes.
+- The full dependency audit still reports development-only advisories in the
+  Tailwind 3 and ESLint toolchains. Resolving those requires a separate breaking
+  Tailwind 4 migration; they are absent from `npm audit --omit=dev`.
+
 **Recorded local and hosted-database verification on 10 October 2026
 (FreeNewsAPI.ai integration):**
 
@@ -495,10 +512,9 @@ These counts are a dated checkpoint, not a guarantee of today's remote state.
 The published seed article is fictional and links to `example.com`; its page is
 `/news/saudi-healthtech-startup-expands-digital-care-platform`.
 
-Known validation limitation: full-project `npm run lint` has an existing
-`require()` lint error in `tailwind.config.ts`. A new production build/deployment
-was not part of the collector milestone. Check Git status, remote migration
-history, and Vercel deployment separately when confirming what is live.
+A production deployment was not part of the collector milestone. Check Git status,
+remote migration history, and Vercel deployment separately when confirming what
+is live.
 
 ## Next development step
 
