@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Newsreader } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
@@ -19,6 +19,12 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
+  display: "swap",
+  subsets: ["latin"],
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -26,7 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${newsreader.variable} ${geistSans.className} antialiased`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
