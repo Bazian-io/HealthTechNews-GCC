@@ -5,6 +5,17 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 const PAGE_SIZE = 10;
+const GCC_COUNTRIES = [
+  { label: "Saudi Arabia", aliases: ["Saudi Arabia", "Saudi"] },
+  {
+    label: "United Arab Emirates",
+    aliases: ["United Arab Emirates", "UAE", "U.A.E."],
+  },
+  { label: "Qatar", aliases: ["Qatar"] },
+  { label: "Kuwait", aliases: ["Kuwait"] },
+  { label: "Bahrain", aliases: ["Bahrain"] },
+  { label: "Oman", aliases: ["Oman"] },
+] as const;
 
 type BrowseArticle = {
   id: string;
@@ -27,6 +38,40 @@ function getOptions(values: Array<string | null>) {
         .map((value) => value.trim()),
     ),
   ).sort((a, b) => a.localeCompare(b));
+}
+
+function normalizeCountry(value: string) {
+  return value.trim().toLocaleLowerCase().replaceAll(".", "");
+}
+
+function getCountryOption(value: string) {
+  const normalizedValue = normalizeCountry(value);
+
+  return GCC_COUNTRIES.find((option) =>
+    option.aliases.some(
+      (alias) => normalizeCountry(alias) === normalizedValue,
+    ),
+  );
+}
+
+function matchesCountry(articleCountry: string | null, selectedCountry: string) {
+  if (!selectedCountry) {
+    return true;
+  }
+
+  if (!articleCountry?.trim()) {
+    return false;
+  }
+
+  const countryOption = getCountryOption(selectedCountry);
+
+  if (!countryOption) {
+    return normalizeCountry(articleCountry) === normalizeCountry(selectedCountry);
+  }
+
+  return countryOption.aliases.some(
+    (alias) => normalizeCountry(alias) === normalizeCountry(articleCountry),
+  );
 }
 
 function getArticleMetadata(article: BrowseArticle) {
@@ -60,14 +105,11 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
   const category = searchParams.get("topic") ?? "";
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  const countries = useMemo(
-    () => getOptions(articles.map((article) => article.country)),
-    [articles],
-  );
   const categories = useMemo(
     () => getOptions(articles.map((article) => article.category)),
     [articles],
   );
+  const selectedCountry = getCountryOption(country)?.label ?? country;
 
   const normalizedSearch = search.trim().toLocaleLowerCase();
   const hasActiveFilters = Boolean(normalizedSearch || country || category);
@@ -87,7 +129,7 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
 
     return (
       (!normalizedSearch || searchableText.includes(normalizedSearch)) &&
-      (!country || article.country?.trim() === country) &&
+      matchesCountry(article.country, country) &&
       (!category || article.category?.trim() === category)
     );
   });
@@ -138,8 +180,8 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
           Browse news
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-          Search all published stories. Country and topic choices appear when
-          that information is available.
+          Search all published stories or browse the six GCC countries. Topic
+          choices appear when that information is available.
         </p>
       </div>
 
@@ -156,24 +198,22 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
           />
         </label>
 
-        {countries.length > 0 && (
-          <label className="text-sm font-medium md:w-48" htmlFor="country-filter">
-            Country
-            <select
-              id="country-filter"
-              value={country}
-              onChange={(event) => updateFilter("country", event.target.value)}
-              className="mt-2 min-h-10 w-full rounded-md border border-input bg-background/70 px-3 py-2 text-sm font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="">All countries</option>
-              {countries.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
+        <label className="text-sm font-medium md:w-56" htmlFor="country-filter">
+          Country
+          <select
+            id="country-filter"
+            value={selectedCountry}
+            onChange={(event) => updateFilter("country", event.target.value)}
+            className="mt-2 min-h-10 w-full rounded-md border border-input bg-background/70 px-3 py-2 text-sm font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <option value="">All countries</option>
+            {GCC_COUNTRIES.map((option) => (
+              <option key={option.label} value={option.label}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
 
         {categories.length > 0 && (
           <label className="text-sm font-medium md:w-48" htmlFor="category-filter">
