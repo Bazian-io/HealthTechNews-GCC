@@ -1,27 +1,130 @@
 import { ProductFooter } from "@/components/product-footer";
 import { ProductHeader } from "@/components/product-header";
 import { createClient } from "@/lib/supabase/server";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 
 // Same reasoning as the homepage: this fetches per-request Supabase data,
 // so it's marked as allowed to block rather than prerendered.
 export const instant = false;
 
-async function getPublishedArticleBySlug(slug: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("articles")
-    .select("title, summary, source_name, source_description, country, category, original_url, published_at")
-    .eq("slug", slug)
-    .eq("status", "published")
-    .maybeSingle();
+type Article = {
+  id: string;
+  slug: string | null;
+  title: string;
+  summary: string | null;
+  source_name: string | null;
+  source_description: string | null;
+  country: string | null;
+  category: string | null;
+  original_url: string;
+  published_at: string | null;
+};
 
-  if (error) {
-    console.error("Failed to load published article:", error);
+type DiscoveryArticle = Pick<
+  Article,
+  | "id"
+  | "slug"
+  | "title"
+  | "source_name"
+  | "country"
+  | "category"
+  | "published_at"
+>;
+
+function normalizeLabel(value: string | null) {
+  return value?.trim().toLocaleLowerCase() ?? "";
+}
+
+function getDiscoveryScore(
+  currentArticle: Article,
+  candidate: DiscoveryArticle,
+) {
+  let score = 0;
+
+  if (
+    normalizeLabel(currentArticle.category) &&
+    normalizeLabel(currentArticle.category) === normalizeLabel(candidate.category)
+  ) {
+    score += 2;
   }
 
-  return { article: data, hasError: Boolean(error) };
+  if (
+    normalizeLabel(currentArticle.country) &&
+    normalizeLabel(currentArticle.country) === normalizeLabel(candidate.country)
+  ) {
+    score += 1;
+  }
+
+  return score;
+}
+
+function rankDiscoveryArticles(
+  currentArticle: Article,
+  candidates: DiscoveryArticle[],
+) {
+  return candidates
+    .filter(
+      (candidate) =>
+        candidate.id !== currentArticle.id && candidate.slug?.trim(),
+    )
+    .map((candidate, index) => ({
+      candidate,
+      index,
+      score: getDiscoveryScore(currentArticle, candidate),
+    }))
+    .sort(
+      (left, right) =>
+        right.score - left.score || left.index - right.index,
+    )
+    .slice(0, 3)
+    .map(({ candidate }) => candidate);
+}
+
+const getPublishedArticleBySlug = cache(async (slug: string) => {
+  const supabase = await createClient();
+  const articleResult = await supabase
+    .from("articles")
+    .select("id, slug, title, summary, source_name, source_description, country, category, original_url, published_at")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle<Article>();
+
+  if (articleResult.error) {
+    console.error("Failed to load published article:", articleResult.error);
+  }
+
+  return {
+    article: articleResult.data,
+    hasError: Boolean(articleResult.error),
+  };
+});
+
+async function getDiscoveryArticles(currentArticle: Article) {
+  const supabase = await createClient();
+  const discoveryResult = await supabase
+    .from("articles")
+    .select("id, slug, title, source_name, country, category, published_at")
+    .eq("status", "published")
+    .order("created_at", { ascending: false })
+    .limit(13)
+    .returns<DiscoveryArticle[]>();
+
+  if (discoveryResult.error) {
+    console.error(
+      "Failed to load article discovery stories:",
+      discoveryResult.error,
+    );
+  }
+
+  return {
+    articles: discoveryResult.error
+      ? []
+      : rankDiscoveryArticles(currentArticle, discoveryResult.data ?? []),
+    hasError: Boolean(discoveryResult.error),
+  };
 }
 
 function formatPublishedDate(value: string | null) {
@@ -42,11 +145,100 @@ function formatPublishedDate(value: string | null) {
   });
 }
 
-export default async function ArticlePage({
-  params,
-}: {
+function getCompactMetadata(article: DiscoveryArticle) {
+  return [
+    article.source_name,
+    article.country,
+    article.category,
+    formatPublishedDate(article.published_at),
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+function getDiscoveryLabel(
+  currentArticle: Article,
+  candidate: DiscoveryArticle,
+) {
+  const sameTopic =
+    Boolean(normalizeLabel(currentArticle.category)) &&
+    normalizeLabel(currentArticle.category) === normalizeLabel(candidate.category);
+  const sameCountry =
+    Boolean(normalizeLabel(currentArticle.country)) &&
+    normalizeLabel(currentArticle.country) === normalizeLabel(candidate.country);
+
+  if (sameTopic && sameCountry) {
+    return "Same topic and country";
+  }
+
+  if (sameTopic) {
+    return "Same topic";
+  }
+
+  if (sameCountry) {
+    return "Same country";
+  }
+
+  return "Latest coverage";
+}
+
+type ArticlePageProps = {
   params: Promise<{ slug: string }>;
-}) {
+};
+
+export async function generateMetadata({
+  params,
+}: ArticlePageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const { article } = await getPublishedArticleBySlug(slug);
+
+  if (!article) {
+    return { title: "Article" };
+  }
+
+  const description =
+    article.summary?.trim() || article.source_description?.trim() || undefined;
+  const publishedDate = article.published_at
+    ? new Date(article.published_at)
+    : null;
+  const publishedTime =
+    publishedDate && !Number.isNaN(publishedDate.getTime())
+      ? publishedDate.toISOString()
+      : undefined;
+
+  return {
+    title: article.title,
+    description,
+    openGraph: {
+      type: "article",
+      title: article.title,
+      description,
+      url: `/news/${slug}`,
+      publishedTime,
+      images: [
+        {
+          url: "/opengraph-image.png",
+          width: 1200,
+          height: 630,
+          alt: "GCC HealthTech News — Health technology news from across the Gulf.",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      description,
+      images: [
+        {
+          url: "/twitter-image.png",
+          alt: "GCC HealthTech News — Health technology news from across the Gulf.",
+        },
+      ],
+    },
+  };
+}
+
+export default async function ArticlePage({ params }: ArticlePageProps) {
   const { slug } = await params;
   const { article, hasError } = await getPublishedArticleBySlug(slug);
 
@@ -92,6 +284,11 @@ export default async function ArticlePage({
     notFound();
   }
 
+  const {
+    articles: discoveryArticles,
+    hasError: discoveryHasError,
+  } = await getDiscoveryArticles(article);
+
   const publishedDate = formatPublishedDate(article.published_at);
   const excerpt = article.summary || article.source_description;
   const excerptLabel = article.summary
@@ -99,12 +296,32 @@ export default async function ArticlePage({
     : article.source_description
       ? "Publisher excerpt"
       : "Article summary";
-  const metadata = [
-    { label: "Publisher", value: article.source_name },
-    { label: "Country", value: article.country },
-    { label: "Topic", value: article.category },
-    { label: "Published", value: publishedDate },
-  ].filter((item) => item.value);
+  const metadata: Array<{
+    label: string;
+    value: string;
+    browseFilter?: "country" | "topic";
+  }> = [];
+
+  if (article.source_name) {
+    metadata.push({ label: "Publisher", value: article.source_name });
+  }
+  if (article.country) {
+    metadata.push({
+      label: "Country",
+      value: article.country,
+      browseFilter: "country",
+    });
+  }
+  if (article.category) {
+    metadata.push({
+      label: "Topic",
+      value: article.category,
+      browseFilter: "topic",
+    });
+  }
+  if (publishedDate) {
+    metadata.push({ label: "Published", value: publishedDate });
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -145,7 +362,22 @@ export default async function ArticlePage({
                     <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                       {item.label}
                     </dt>
-                    <dd className="mt-1 text-sm font-medium">{item.value}</dd>
+                    <dd className="mt-1 text-sm font-medium">
+                      {item.browseFilter ? (
+                        <Link
+                          href={{
+                            pathname: "/",
+                            query: { [item.browseFilter]: item.value },
+                            hash: "latest-news",
+                          }}
+                          className="text-primary underline-offset-4 hover:underline"
+                        >
+                          {item.value}
+                        </Link>
+                      ) : (
+                        item.value
+                      )}
+                    </dd>
                   </div>
                 ))}
               </dl>
@@ -196,16 +428,74 @@ export default async function ArticlePage({
               Read original source ↗
             </a>
           </aside>
-
-          <div className="py-8">
-            <Link
-              href="/"
-              className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
-            >
-              ← Back to latest news
-            </Link>
-          </div>
         </article>
+
+        {(discoveryArticles.length > 0 || discoveryHasError) && (
+          <section
+            className="mx-auto mt-14 max-w-5xl border-t border-primary/15 pt-10 sm:mt-16 sm:pt-12"
+            aria-labelledby="continue-exploring-heading"
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+              From the briefing
+            </p>
+            <h2
+              id="continue-exploring-heading"
+              className="mt-2 font-editorial text-3xl font-semibold tracking-tight"
+            >
+              Continue exploring
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+              More published coverage, prioritizing stories with the same topic
+              or country when that information is available.
+            </p>
+
+            {discoveryHasError ? (
+              <p role="status" className="mt-6 text-sm text-muted-foreground">
+                More stories are unavailable right now.
+              </p>
+            ) : (
+              <ul className="mt-6 grid gap-4 md:grid-cols-3">
+                {discoveryArticles.map((discoveryArticle) => {
+                  const discoveryMetadata =
+                    getCompactMetadata(discoveryArticle);
+
+                  return (
+                    <li
+                      key={discoveryArticle.id}
+                      className="flex min-w-0 flex-col rounded-xl border border-primary/15 bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
+                    >
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                        {getDiscoveryLabel(article, discoveryArticle)}
+                      </p>
+                      <h3 className="mt-3">
+                        <Link
+                          href={`/news/${discoveryArticle.slug}`}
+                          className="break-words font-editorial text-xl font-semibold leading-snug underline-offset-4 transition-colors hover:text-primary hover:underline"
+                        >
+                          {discoveryArticle.title}
+                        </Link>
+                      </h3>
+                      {discoveryMetadata && (
+                        <p className="mt-4 text-xs leading-5 text-muted-foreground">
+                          {discoveryMetadata}
+                        </p>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        )}
+
+        <div className="mx-auto max-w-5xl py-8 sm:py-10">
+          <Link
+            href="/"
+            className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
+          >
+            ← Back to latest news
+          </Link>
+        </div>
       </main>
 
       <ProductFooter />

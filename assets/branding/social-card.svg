@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="glow" cx="82%" cy="18%" r="62%">
+      <stop offset="0" stop-color="#174943"/>
+      <stop offset="1" stop-color="#0b1a1c"/>
+    </radialGradient>
+    <linearGradient id="rule" x1="0" x2="1">
+      <stop offset="0" stop-color="#67cdbb" stop-opacity="0.48"/>
+      <stop offset="1" stop-color="#67cdbb" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <g opacity="0.09" stroke="#67cdbb">
+    <path d="M760 0v630M870 0v630M980 0v630M1090 0v630"/>
+    <path d="M650 110h550M650 220h550M650 330h550M650 440h550M650 550h550"/>
+  </g>
+
+  <g transform="translate(72 68)">
+    <rect width="48" height="48" rx="12" fill="#102b2d" stroke="#67cdbb" stroke-opacity="0.42"/>
+    <path d="M24 8 40 24 24 40 8 24Z" fill="#67cdbb"/>
+    <rect x="19" y="19" width="10" height="10" rx="3" fill="#f7f3e8"/>
+  </g>
+
+  <text x="138" y="99" fill="#f7f3e8" font-family="Arial, sans-serif" font-size="25" font-weight="700" letter-spacing="0.4">GCC HealthTech News</text>
+  <rect x="72" y="147" width="350" height="2" fill="url(#rule)"/>
+
+  <text x="72" y="220" fill="#67cdbb" font-family="Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="3.2">GCC HEALTHTECH BRIEFING</text>
+  <text x="72" y="310" fill="#f7f3e8" font-family="Georgia, 'Times New Roman', serif" font-size="68" font-weight="700">Health technology news</text>
+  <text x="72" y="388" fill="#f7f3e8" font-family="Georgia, 'Times New Roman', serif" font-size="68" font-weight="700">from across the Gulf.</text>
+
+  <text x="72" y="462" fill="#a8bbb9" font-family="Arial, sans-serif" font-size="25">Digital health · Medical AI · Telemedicine · Devices</text>
+  <text x="72" y="503" fill="#a8bbb9" font-family="Arial, sans-serif" font-size="25">Startups · Investment · Partnerships</text>
+
+  <rect x="72" y="559" width="1056" height="1" fill="#67cdbb" opacity="0.24"/>
+  <text x="72" y="598" fill="#67cdbb" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="1.7">SAUDI ARABIA · UAE · QATAR · KUWAIT · BAHRAIN · OMAN</text>
+</svg>

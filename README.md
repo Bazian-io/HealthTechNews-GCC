@@ -9,20 +9,26 @@ The goal is to have fresh, relevant news ready on the website each morning.
 
 ## Current milestone
 
-**As of 14 October 2026:** FreeNewsAPI.ai is the primary news source for this
+**As of 21 October 2026:** FreeNewsAPI.ai is the primary news source for this
 initial version. Its collector automatically publishes new articles that pass a
 basic GCC HealthTech keyword filter, as explicitly requested. RSS and GDELT remain
-available and save drafts only. The feature branch is not deployed until it is
-merged and the production deployment completes.
+available and save drafts only. The public website now uses an editorial briefing
+homepage with shareable search and filter URLs, plus a news stream that reveals
+articles in groups of ten. Article pages connect country and topic labels back to
+filtered browsing and show additional published coverage. The public header now
+offers light, dark, and system themes, with product-specific browser and social
+sharing artwork. The feature branch is not deployed until it is merged and the
+production deployment completes.
 
 | Working now | Still to build |
 | --- | --- |
-| Published article list and individual article pages | Validate relevance accuracy and store verdicts |
-| Database error messages and article-not-found page | Summarization and classification |
-| Unique slugs; published articles must have a nonblank slug | Review/publication workflow |
-| FreeNewsAPI.ai collection and publication; RSS/GDELT drafts; duplicate URL checks | Scheduled collection with cron |
-| Collector tests, dry-run preview, and run counts | Cross-publisher story matching |
-| Optional read-only Claude relevance checker and labelled examples | Review GDELT search quality against real results |
+| Editorial homepage, searchable news stream, and article discovery links | Validate relevance accuracy and store verdicts |
+| Product favicon, social preview, metadata, and theme control | Summarization and classification |
+| Database error messages and article-not-found page | Review/publication workflow |
+| Unique slugs; published articles must have a nonblank slug | Scheduled collection with cron |
+| FreeNewsAPI.ai collection and publication; RSS/GDELT drafts; duplicate URL checks | Cross-publisher story matching |
+| Collector tests, dry-run preview, and run counts | Review GDELT search quality against real results |
+| Optional read-only Claude relevance checker and labelled examples | — |
 
 The website has been deployed on Vercel. Collectors currently run from a terminal;
 there is no collector API endpoint or cron schedule in this repository.
@@ -67,8 +73,8 @@ dry run also skips reading environment files entirely. GDELT discovery requires
 no API token, new dependency, or AI call. FreeNewsAPI.ai likewise needs no account,
 API key, or paid service; its dry run does not load credentials either.
 `ANTHROPIC_API_KEY` is only used by the
-separate, optional relevance command. Vercel supplies `VERCEL_URL` for website
-metadata.
+separate, optional relevance command. Vercel supplies
+`VERCEL_PROJECT_PRODUCTION_URL` and `VERCEL_URL` for website metadata.
 
 ### Database setup
 

@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
+
+const PAGE_SIZE = 10;
 
 type BrowseArticle = {
   id: string;
@@ -50,9 +53,12 @@ function getArticleMetadata(article: BrowseArticle) {
 }
 
 export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
-  const [search, setSearch] = useState("");
-  const [country, setCountry] = useState("");
-  const [category, setCategory] = useState("");
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const search = searchParams.get("q") ?? "";
+  const country = searchParams.get("country") ?? "";
+  const category = searchParams.get("topic") ?? "";
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const countries = useMemo(
     () => getOptions(articles.map((article) => article.country)),
@@ -66,7 +72,7 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
   const normalizedSearch = search.trim().toLocaleLowerCase();
   const hasActiveFilters = Boolean(normalizedSearch || country || category);
   const articlesToBrowse = hasActiveFilters ? articles : articles.slice(4);
-  const visibleArticles = articlesToBrowse.filter((article) => {
+  const matchingArticles = articlesToBrowse.filter((article) => {
     const searchableText = [
       article.title,
       article.summary,
@@ -85,11 +91,34 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
       (!category || article.category?.trim() === category)
     );
   });
+  const visibleArticles = matchingArticles.slice(0, visibleCount);
+  const remainingCount = matchingArticles.length - visibleArticles.length;
+
+  function updateFilter(name: "q" | "country" | "topic", value: string) {
+    const params = new URLSearchParams(window.location.search);
+
+    if (value.trim()) {
+      params.set(name, value);
+    } else {
+      params.delete(name);
+    }
+
+    const query = params.toString();
+    const nextUrl = `${pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+    window.history.replaceState(null, "", nextUrl);
+    setVisibleCount(PAGE_SIZE);
+  }
 
   function clearFilters() {
-    setSearch("");
-    setCountry("");
-    setCategory("");
+    const params = new URLSearchParams(window.location.search);
+    params.delete("q");
+    params.delete("country");
+    params.delete("topic");
+
+    const query = params.toString();
+    const nextUrl = `${pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+    window.history.replaceState(null, "", nextUrl);
+    setVisibleCount(PAGE_SIZE);
   }
 
   return (
@@ -121,7 +150,7 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
             id="news-search"
             type="search"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => updateFilter("q", event.target.value)}
             placeholder="Search headlines, publishers, or topics"
             className="mt-2 min-h-10 w-full rounded-md border border-input bg-background/70 px-3 py-2 text-sm font-normal outline-none transition-shadow placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
@@ -133,7 +162,7 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
             <select
               id="country-filter"
               value={country}
-              onChange={(event) => setCountry(event.target.value)}
+              onChange={(event) => updateFilter("country", event.target.value)}
               className="mt-2 min-h-10 w-full rounded-md border border-input bg-background/70 px-3 py-2 text-sm font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="">All countries</option>
@@ -152,7 +181,7 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
             <select
               id="category-filter"
               value={category}
-              onChange={(event) => setCategory(event.target.value)}
+              onChange={(event) => updateFilter("topic", event.target.value)}
               className="mt-2 min-h-10 w-full rounded-md border border-input bg-background/70 px-3 py-2 text-sm font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="">All topics</option>
@@ -176,15 +205,14 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
         )}
       </div>
 
-      <p
-        className="mt-5 text-xs text-muted-foreground"
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        {hasActiveFilters
-          ? `${visibleArticles.length} ${visibleArticles.length === 1 ? "result" : "results"}`
-          : "Recent stories following today’s top stories"}
-      </p>
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+        <p aria-live="polite" aria-atomic="true">
+          {hasActiveFilters
+            ? `${matchingArticles.length} ${matchingArticles.length === 1 ? "result" : "results"}`
+            : "Recent stories following today’s top stories"}
+        </p>
+        <p className="font-medium text-foreground">Newest first</p>
+      </div>
 
       {visibleArticles.length > 0 ? (
         <div className="mt-3 divide-y border-y border-primary/15">
@@ -235,6 +263,25 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
             ? "No published articles match these filters."
             : "More news will appear here as it is published."}
         </p>
+      )}
+
+      {remainingCount > 0 && (
+        <div className="mt-6 flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              setVisibleCount((count) =>
+                Math.min(count + PAGE_SIZE, matchingArticles.length),
+              )
+            }
+            className="min-h-10 rounded-md border border-primary/20 bg-card px-5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            Show {Math.min(PAGE_SIZE, remainingCount)} more
+          </button>
+          <p className="text-xs text-muted-foreground" aria-live="polite">
+            Showing {visibleArticles.length} of {matchingArticles.length} stories
+          </p>
+        </div>
       )}
     </section>
   );
