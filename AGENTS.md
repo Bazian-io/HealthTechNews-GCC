@@ -17,12 +17,13 @@ The core product is an automated GCC HealthTech collection and processing pipeli
 The public Next.js website is its reading layer.
 
 The RSS collector reads one Saudi Ministry of Health English feed. A separate
-GDELT DOC 2.0 JSON collector searches all six GCC countries. Both run manually and
-save drafts only. FreeNewsAPI.ai is now the primary collector: it publishes new
-keyword-matched articles directly, explicitly requested on 10 October 2026.
+GDELT DOC 2.0 JSON collector searches all six GCC countries. Both save drafts only.
+FreeNewsAPI.ai is now the primary collector: it publishes new keyword-matched
+articles directly, explicitly requested on 10 October 2026. Its terminal command
+remains available, and Vercel Cron invokes its protected route daily at 05:00 UTC.
 The optional Claude relevance checker is read-only and is not
 invoked by collection. Search/relevance quality still needs evaluation; collection
-alone does not establish relevance. Publication workflow and scheduling are planned.
+alone does not establish relevance. The review/publication workflow is still planned.
 
 ## Invariants to preserve
 
@@ -74,13 +75,18 @@ alone does not establish relevance. Publication workflow and scheduling are plan
   Optional `--country` and `--days` (1–30) bound a run. New published rows affect
   every website sharing the configured database, even without a code deployment.
   Existing RSS/GDELT commands and public read-only RLS remain unchanged.
+- `/api/cron/collect-free-news` runs the same FreeNewsAPI.ai collector. Keep it
+  protected by Vercel's backend-only `CRON_SECRET`; the production schedule is
+  `0 5 * * *` in `vercel.json`. The route must bypass login redirects so Vercel's
+  authorized GET reaches the handler.
 - Full-project lint should pass. The Tailwind plugin uses an ESM import so it is
   compatible with the Next.js 16 ESLint flat configuration.
 - Next.js has Cache Components enabled. Article pages currently use
   `instant = false` for request-time reads; consult installed docs before changing it.
 - `/protected` and authentication tutorial components are starter material, not
   an editorial dashboard. The current proxy redirects most other unauthenticated
-  routes to login; a future cron endpoint needs deliberate routing and authentication.
+  routes to login; the cron route deliberately bypasses that redirect and authenticates
+  its Vercel bearer secret in the route handler.
 - Update documentation with completed behavior and actual checks. Do not describe
   planned features or a local change as deployed without verification.
 

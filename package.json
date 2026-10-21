@@ -12,7 +12,7 @@
     "check:relevance": "node scripts/check-relevance.mjs",
     "test:collector": "node --test tests/news-collector.test.mjs",
     "test:gdelt": "node --test tests/gdelt-collector.test.mjs",
-    "test:free-news": "node --test tests/free-news-collector.test.mjs",
+    "test:free-news": "node --test tests/free-news-collector.test.mjs tests/free-news-cron.test.mjs",
     "test:relevance": "node --test tests/relevance.test.mjs"
   },
   "dependencies": {

@@ -25,13 +25,14 @@ production deployment completes.
 | Editorial homepage, searchable news stream, and article discovery links | Validate relevance accuracy and store verdicts |
 | Product favicon, social preview, metadata, and theme control | Summarization and classification |
 | Database error messages and article-not-found page | Review/publication workflow |
-| Unique slugs; published articles must have a nonblank slug | Scheduled collection with cron |
+| Unique slugs; published articles must have a nonblank slug | Persistent collection run history and alerting |
 | FreeNewsAPI.ai collection and publication; RSS/GDELT drafts; duplicate URL checks | Cross-publisher story matching |
 | Collector tests, dry-run preview, and run counts | Review GDELT search quality against real results |
 | Optional read-only Claude relevance checker and labelled examples | — |
 
-The website has been deployed on Vercel. Collectors currently run from a terminal;
-there is no collector API endpoint or cron schedule in this repository.
+The website has been deployed on Vercel. FreeNewsAPI.ai can still be run from a
+terminal, and a protected Vercel Cron route now schedules it once a day. The cron
+becomes active after this change is deployed to production and its secret is set.
 
 ### Intended flow
 
@@ -61,6 +62,7 @@ Use **Node.js 22 or newer**. From this existing project folder:
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL; used by website and collector |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Website database reads and authentication |
 | `SUPABASE_SECRET_KEY` | Backend secret key for collector inserts; server use only |
+| `CRON_SECRET` | Backend-only bearer secret protecting the Vercel Cron endpoint |
 | `ANTHROPIC_API_KEY` | Claude API key for the relevance check; server use only |
 
 Keep the backend secret in the Git-ignored `.env.local`. The collector expects a
@@ -109,8 +111,8 @@ Countries: `saudi-arabia`, `uae`, `qatar`, `kuwait`, `bahrain`, `oman`.
 The website reads published articles from Supabase. Refresh the homepage after
 collection; new rows appear first, with the publisher, source excerpt when
 available, and original source link. No login or review screen is required for
-readers. Publication happens in the terminal collector, never during a page view.
-There is no automatic schedule yet; run the command when you want fresh stories.
+readers. Publication happens through the terminal collector or the daily Vercel
+Cron described below; it never runs during a reader's page view.
 
 **The command writes to the configured Supabase project.** If your local app and
 live website share that project, newly published articles appear on both, even
@@ -153,6 +155,29 @@ up to ten previews, but cannot identify duplicates already in Supabase.
 
 No new database migration or dependency is required. The existing collection
 metadata and backend INSERT/SELECT grants are sufficient.
+
+### Daily Vercel Cron
+
+[`vercel.json`](vercel.json) calls `/api/cron/collect-free-news` every day at
+05:00 UTC. That is 08:00 in Saudi Arabia, Qatar, Kuwait, and Bahrain, and 09:00 in
+the UAE and Oman. Vercel schedules cron jobs only on production deployments. On
+the Hobby plan, the invocation can occur at any point during the scheduled hour.
+
+Before deploying, add these server-side environment variables to the Vercel
+project's Production environment:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `SUPABASE_SECRET_KEY`
+- `CRON_SECRET`, using a random value of at least 16 characters
+
+Vercel automatically sends `CRON_SECRET` as a bearer token. The route rejects
+missing or incorrect tokens, bypasses the website login redirect, and allows up
+to five minutes for the collector's 18 paced searches. It returns an error status
+when a search or database save fails so the failure is visible in Vercel logs.
+Vercel does not automatically retry failed cron invocations.
+
+Repeated or occasionally duplicated cron invocations are safe for stored rows:
+the existing unique URL insert skips duplicates without overwriting articles.
 
 ## Run the RSS collector
 
@@ -405,6 +430,8 @@ and the configured backend key.
 | [lib/collector-utils.mjs](lib/collector-utils.mjs) | Shared URL cleanup, draft/slug creation, backend client, duplicate-safe inserts |
 | [lib/gdelt-collector.mjs](lib/gdelt-collector.mjs) | GCC queries, bounded JSON requests/retries, GDELT draft mapping |
 | [lib/free-news-collector.mjs](lib/free-news-collector.mjs) | FreeNewsAPI.ai queries, basic keyword filter, bounded requests, published article mapping |
+| [lib/free-news-cron.mjs](lib/free-news-cron.mjs) | Cron authorization, collector invocation, and safe HTTP result handling |
+| [app/api/cron/collect-free-news/route.ts](app/api/cron/collect-free-news/route.ts) | Protected Vercel Cron route for daily FreeNewsAPI.ai collection |
 | [scripts/collect-free-news.mjs](scripts/collect-free-news.mjs) | FreeNewsAPI.ai collection/publication command and credential-free dry run |
 | [scripts/collect-news.mjs](scripts/collect-news.mjs) | Terminal command, environment loading, result output |
 | [scripts/collect-gdelt.mjs](scripts/collect-gdelt.mjs) | GDELT terminal command, country/lookback options, credential-free dry run |
@@ -414,6 +441,7 @@ and the configured backend key.
 | [tests/news-collector.test.mjs](tests/news-collector.test.mjs) | Collector tests using example feeds and a simulated database |
 | [tests/gdelt-collector.test.mjs](tests/gdelt-collector.test.mjs) | Offline GDELT, shared processing, and command tests using synthetic responses |
 | [tests/free-news-collector.test.mjs](tests/free-news-collector.test.mjs) | Offline FreeNewsAPI.ai, publication, duplicate, metadata, failure, and CLI tests |
+| [tests/free-news-cron.test.mjs](tests/free-news-cron.test.mjs) | Offline cron authentication, execution, and error-response tests |
 | [tests/relevance.test.mjs](tests/relevance.test.mjs) | Relevance tests using a simulated Claude client; no network access |
 | [tests/fixtures/relevance-gold.json](tests/fixtures/relevance-gold.json) | Hand-checked relevance verdicts for the collected drafts |
 
@@ -442,6 +470,16 @@ npx tsc --noEmit
 
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
+
+**Recorded local verification on 21 October 2026 (daily Vercel Cron):**
+
+- Added the secret-protected `/api/cron/collect-free-news` route and the daily
+  `0 5 * * *` production schedule.
+- All 82 offline tests, full-project lint, TypeScript, `git diff --check`, and a
+  Next.js production build passed. The build lists the cron endpoint as a dynamic
+  server route.
+- No live collection, database write, Vercel environment change, or deployment
+  was performed during this verification.
 
 **Recorded pre-production review on 14 October 2026:**
 
