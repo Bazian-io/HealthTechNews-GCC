@@ -21,6 +21,8 @@ GDELT DOC 2.0 JSON collector searches all six GCC countries. Both save drafts on
 FreeNewsAPI.ai is now the primary collector: it publishes new keyword-matched
 articles directly, explicitly requested on 10 October 2026. Its terminal command
 remains available, and Vercel Cron invokes its protected route daily at 05:00 UTC.
+The homepage keeps the previous visit timestamp in browser storage, highlights new
+articles, and groups the news stream by the day each article was added.
 The optional Claude relevance checker is read-only and is not
 invoked by collection. Search/relevance quality still needs evaluation; collection
 alone does not establish relevance. The review/publication workflow is still planned.
@@ -61,6 +63,7 @@ alone does not establish relevance. The review/publication workflow is still pla
 - Collector checks: `npm run test:collector`, `npm run test:gdelt`,
   `npm run test:free-news`, `npm run test:relevance`, and
   `npx eslint lib/*.mjs scripts/*.mjs tests/*.mjs`.
+- Homepage freshness check: `npm run test:ui`.
 - TypeScript check: `npx tsc --noEmit`. Production build: `npm run build`.
 - `npm run collect:news -- --dry-run` fetches the live feed but never accesses
   Supabase. `npm run collect:news` writes drafts to the configured database.

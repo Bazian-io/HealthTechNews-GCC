@@ -9,20 +9,21 @@ The goal is to have fresh, relevant news ready on the website each morning.
 
 ## Current milestone
 
-**As of 21 October 2026:** FreeNewsAPI.ai is the primary news source for this
+**As of 22 October 2026:** FreeNewsAPI.ai is the primary news source for this
 initial version. Its collector automatically publishes new articles that pass a
 basic GCC HealthTech keyword filter, as explicitly requested. RSS and GDELT remain
 available and save drafts only. The public website now uses an editorial briefing
 homepage with shareable search and filter URLs, plus a news stream that reveals
-articles in groups of ten. Article pages connect country and topic labels back to
-filtered browsing and show additional published coverage. The public header now
-offers light, dark, and system themes, with product-specific browser and social
-sharing artwork. The feature branch is not deployed until it is merged and the
-production deployment completes.
+articles in groups of ten. It remembers the previous visit in the reader's browser,
+reports newly added stories, marks them as new, and groups the stream into Today,
+Yesterday, and Earlier. Article pages connect country and topic labels back to
+filtered browsing and show additional published coverage. The public header offers
+light, dark, and system themes, with product-specific browser and social sharing
+artwork. The freshness UI remains local until its production deployment completes.
 
 | Working now | Still to build |
 | --- | --- |
-| Editorial homepage, searchable news stream, and article discovery links | Validate relevance accuracy and store verdicts |
+| Editorial homepage, daily freshness briefing, searchable news stream, and article discovery links | Validate relevance accuracy and store verdicts |
 | Product favicon, social preview, metadata, and theme control | Summarization and classification |
 | Database error messages and article-not-found page | Review/publication workflow |
 | Unique slugs; published articles must have a nonblank slug | Persistent collection run history and alerting |
@@ -31,8 +32,8 @@ production deployment completes.
 | Optional read-only Claude relevance checker and labelled examples | — |
 
 The website has been deployed on Vercel. FreeNewsAPI.ai can still be run from a
-terminal, and a protected Vercel Cron route now schedules it once a day. The cron
-becomes active after this change is deployed to production and its secret is set.
+terminal, and a protected Vercel Cron route schedules it once a day. The user
+confirmed on 22 October 2026 that the production cron is active and working.
 
 ### Intended flow
 
@@ -178,6 +179,19 @@ Vercel does not automatically retry failed cron invocations.
 
 Repeated or occasionally duplicated cron invocations are safe for stored rows:
 the existing unique URL insert skips duplicates without overwriting articles.
+
+### Reader freshness
+
+The homepage uses each article's database `created_at` timestamp to group the news
+stream into Today, Yesterday, and Earlier. On a returning visit, it counts articles
+added since the previous visit and marks those stories with a `New` badge across
+Top stories and the news stream. Day boundaries use Riyadh time for one consistent
+GCC briefing day.
+
+The previous-visit timestamp is stored only in that browser's local storage. A
+first-time visitor sees an explanation instead of an artificial new-story count,
+and the feature safely falls back when browser storage is unavailable. Source
+publication dates remain separate and are not inferred from collection time.
 
 ## Run the RSS collector
 
@@ -422,6 +436,8 @@ and the configured backend key.
 | Location | Responsibility |
 | --- | --- |
 | [app/page.tsx](app/page.tsx) | `/`: published articles ordered by insertion time, newest first, with attributed source excerpts |
+| [components/article-browser.tsx](components/article-browser.tsx) | Searchable, filtered, paginated, and day-grouped homepage news stream |
+| [components/briefing-freshness.tsx](components/briefing-freshness.tsx) | Browser-local visit tracking, freshness banner, and new-story badges |
 | [app/news/[slug]/page.tsx](app/news/[slug]/page.tsx) | `/news/[slug]`: published article details and original source link |
 | [app/news/[slug]/not-found.tsx](app/news/[slug]/not-found.tsx) | Missing/unpublished article page |
 | [lib/supabase](lib/supabase) | Website server/browser clients and login-cookie maintenance |
@@ -431,6 +447,7 @@ and the configured backend key.
 | [lib/gdelt-collector.mjs](lib/gdelt-collector.mjs) | GCC queries, bounded JSON requests/retries, GDELT draft mapping |
 | [lib/free-news-collector.mjs](lib/free-news-collector.mjs) | FreeNewsAPI.ai queries, basic keyword filter, bounded requests, published article mapping |
 | [lib/free-news-cron.mjs](lib/free-news-cron.mjs) | Cron authorization, collector invocation, and safe HTTP result handling |
+| [lib/article-freshness.mjs](lib/article-freshness.mjs) | Tested timestamp comparison, GCC day grouping, and safe visit persistence |
 | [app/api/cron/collect-free-news/route.ts](app/api/cron/collect-free-news/route.ts) | Protected Vercel Cron route for daily FreeNewsAPI.ai collection |
 | [scripts/collect-free-news.mjs](scripts/collect-free-news.mjs) | FreeNewsAPI.ai collection/publication command and credential-free dry run |
 | [scripts/collect-news.mjs](scripts/collect-news.mjs) | Terminal command, environment loading, result output |
@@ -442,6 +459,7 @@ and the configured backend key.
 | [tests/gdelt-collector.test.mjs](tests/gdelt-collector.test.mjs) | Offline GDELT, shared processing, and command tests using synthetic responses |
 | [tests/free-news-collector.test.mjs](tests/free-news-collector.test.mjs) | Offline FreeNewsAPI.ai, publication, duplicate, metadata, failure, and CLI tests |
 | [tests/free-news-cron.test.mjs](tests/free-news-cron.test.mjs) | Offline cron authentication, execution, and error-response tests |
+| [tests/article-freshness.test.mjs](tests/article-freshness.test.mjs) | Offline day grouping, new-story counting, and browser-storage fallback tests |
 | [tests/relevance.test.mjs](tests/relevance.test.mjs) | Relevance tests using a simulated Claude client; no network access |
 | [tests/fixtures/relevance-gold.json](tests/fixtures/relevance-gold.json) | Hand-checked relevance verdicts for the collected drafts |
 
@@ -464,12 +482,23 @@ npm run test:collector
 npm run test:gdelt
 npm run test:free-news
 npm run test:relevance
-npx eslint lib/*.mjs scripts/*.mjs tests/*.mjs
+npm run test:ui
+npm run lint
 npx tsc --noEmit
 ```
 
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
+
+**Recorded local verification on 22 October 2026 (reader freshness):**
+
+- Added browser-local previous-visit tracking, a returning-reader status banner,
+  new-story badges, and Today/Yesterday/Earlier news-stream groups.
+- All 86 offline tests, full-project lint, TypeScript, `git diff --check`, and a
+  Next.js production build passed.
+- Browser verification covered first-time and returning visits, matching new-story
+  counts and badges, the Today group, and desktop/mobile dark-theme layouts. No
+  database write or deployment was performed.
 
 **Recorded local verification on 21 October 2026 (daily Vercel Cron):**
 

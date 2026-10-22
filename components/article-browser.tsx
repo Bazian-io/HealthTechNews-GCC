@@ -1,5 +1,7 @@
 "use client";
 
+import { ArticleNewBadge } from "@/components/briefing-freshness";
+import { getArticleDayGroup } from "@/lib/article-freshness.mjs";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -28,7 +30,14 @@ type BrowseArticle = {
   country: string | null;
   category: string | null;
   published_at: string | null;
+  created_at: string;
 };
+
+const DAY_GROUPS = [
+  { id: "today", label: "Today" },
+  { id: "yesterday", label: "Yesterday" },
+  { id: "earlier", label: "Earlier" },
+] as const;
 
 function getOptions(values: Array<string | null>) {
   return Array.from(
@@ -97,7 +106,13 @@ function getArticleMetadata(article: BrowseArticle) {
     .join(" · ");
 }
 
-export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
+export function ArticleBrowser({
+  articles,
+  briefingTime,
+}: {
+  articles: BrowseArticle[];
+  briefingTime: string;
+}) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const search = searchParams.get("q") ?? "";
@@ -135,6 +150,12 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
   });
   const visibleArticles = matchingArticles.slice(0, visibleCount);
   const remainingCount = matchingArticles.length - visibleArticles.length;
+  const groupedArticles = DAY_GROUPS.map((group) => ({
+    ...group,
+    articles: visibleArticles.filter(
+      (article) => getArticleDayGroup(article.created_at, briefingTime) === group.id,
+    ),
+  })).filter((group) => group.articles.length > 0);
 
   function updateFilter(name: "q" | "country" | "topic", value: string) {
     const params = new URLSearchParams(window.location.search);
@@ -181,7 +202,8 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
           Search all published stories or browse the six GCC countries. Topic
-          choices appear when that information is available.
+          choices appear when that information is available. Stories are grouped
+          by when they were added to the briefing.
         </p>
       </div>
 
@@ -255,47 +277,67 @@ export function ArticleBrowser({ articles }: { articles: BrowseArticle[] }) {
       </div>
 
       {visibleArticles.length > 0 ? (
-        <div className="mt-3 divide-y border-y border-primary/15">
-          {visibleArticles.map((article) => {
-            const metadata = getArticleMetadata(article);
-
-            return (
-              <article
-                key={article.id}
-                className="grid gap-3 px-3 py-5 transition-colors hover:bg-accent/30 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8"
-              >
-                <div className="space-y-2">
-                  {metadata && (
-                    <p className="text-xs leading-5 text-muted-foreground">
-                      {metadata}
-                    </p>
-                  )}
-                  <h3>
-                    {article.slug?.trim() ? (
-                      <Link
-                        href={`/news/${article.slug}`}
-                        className="break-words font-editorial text-xl font-semibold leading-snug underline-offset-4 transition-colors hover:text-primary hover:underline"
-                      >
-                        {article.title}
-                      </Link>
-                    ) : (
-                      <span className="break-words font-editorial text-xl font-semibold leading-snug">
-                        {article.title}
-                      </span>
-                    )}
-                  </h3>
-                </div>
-                <a
-                  href={article.original_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-fit text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        <div className="mt-5 space-y-8">
+          {groupedArticles.map((group) => (
+            <section key={group.id} aria-labelledby={`news-group-${group.id}`}>
+              <div className="flex items-baseline justify-between gap-4 border-b border-primary/20 pb-2">
+                <h3
+                  id={`news-group-${group.id}`}
+                  className="font-editorial text-2xl font-semibold tracking-tight"
                 >
-                  Original source ↗
-                </a>
-              </article>
-            );
-          })}
+                  {group.label}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {group.articles.length} {group.articles.length === 1 ? "story" : "stories"} shown
+                </p>
+              </div>
+              <div className="divide-y border-b border-primary/15">
+                {group.articles.map((article) => {
+                  const metadata = getArticleMetadata(article);
+
+                  return (
+                    <article
+                      key={article.id}
+                      className="grid gap-3 px-3 py-5 transition-colors hover:bg-accent/30 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <ArticleNewBadge createdAt={article.created_at} />
+                          {metadata && (
+                            <p className="text-xs leading-5 text-muted-foreground">
+                              {metadata}
+                            </p>
+                          )}
+                        </div>
+                        <h4>
+                          {article.slug?.trim() ? (
+                            <Link
+                              href={`/news/${article.slug}`}
+                              className="break-words font-editorial text-xl font-semibold leading-snug underline-offset-4 transition-colors hover:text-primary hover:underline"
+                            >
+                              {article.title}
+                            </Link>
+                          ) : (
+                            <span className="break-words font-editorial text-xl font-semibold leading-snug">
+                              {article.title}
+                            </span>
+                          )}
+                        </h4>
+                      </div>
+                      <a
+                        href={article.original_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-fit text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                      >
+                        Original source ↗
+                      </a>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
         </div>
       ) : (
         <p className="mt-3 border-y py-6 text-sm text-muted-foreground">

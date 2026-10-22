@@ -1,4 +1,9 @@
 import { ArticleBrowser } from "@/components/article-browser";
+import {
+  ArticleNewBadge,
+  BriefingFreshnessBanner,
+  BriefingFreshnessProvider,
+} from "@/components/briefing-freshness";
 import { ProductFooter } from "@/components/product-footer";
 import { ProductHeader } from "@/components/product-header";
 import { createClient } from "@/lib/supabase/server";
@@ -21,6 +26,7 @@ type Article = {
   country: string | null;
   category: string | null;
   published_at: string | null;
+  created_at: string;
 };
 
 async function getPublishedArticles(): Promise<{
@@ -30,7 +36,7 @@ async function getPublishedArticles(): Promise<{
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("articles")
-    .select("id, slug, title, summary, source_name, source_description, original_url, country, category, published_at")
+    .select("id, slug, title, summary, source_name, source_description, original_url, country, category, published_at, created_at")
     .eq("status", "published")
     // Recently added stories stay visible even when their source date is unknown.
     .order("created_at", { ascending: false });
@@ -121,6 +127,7 @@ async function HomeArticles() {
   const { articles, hasError } = await getPublishedArticles();
   const featuredArticle = articles[0];
   const secondaryArticles = articles.slice(1, 4);
+  const briefingTime = new Date().toISOString();
 
   if (hasError) {
     return (
@@ -161,7 +168,10 @@ async function HomeArticles() {
   }
 
   return (
-    <>
+    <BriefingFreshnessProvider
+      articleTimestamps={articles.map((article) => article.created_at)}
+    >
+      <BriefingFreshnessBanner />
       <section
         id="top-stories"
         className="scroll-mt-6 py-10 sm:py-14"
@@ -190,9 +200,12 @@ async function HomeArticles() {
         >
           <article className="flex flex-col justify-between gap-8 rounded-xl border border-primary/20 bg-card p-6 shadow-sm transition-shadow hover:shadow-md sm:p-8">
             <div className="space-y-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-                Featured
-              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+                  Featured
+                </p>
+                <ArticleNewBadge createdAt={featuredArticle.created_at} />
+              </div>
               <h3>
                 <ArticleHeadline
                   article={featuredArticle}
@@ -230,7 +243,10 @@ async function HomeArticles() {
                   key={article.id}
                   className="space-y-3 p-5 transition-colors hover:bg-accent/35 sm:p-6"
                 >
-                  <ArticleMetadata article={article} />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <ArticleNewBadge createdAt={article.created_at} />
+                    <ArticleMetadata article={article} />
+                  </div>
                   <h3>
                     <ArticleHeadline
                       article={article}
@@ -252,8 +268,8 @@ async function HomeArticles() {
         </div>
       </section>
 
-      <ArticleBrowser articles={articles} />
-    </>
+      <ArticleBrowser articles={articles} briefingTime={briefingTime} />
+    </BriefingFreshnessProvider>
   );
 }
 
@@ -261,6 +277,7 @@ function HomeArticlesLoading() {
   return (
     <div role="status" aria-live="polite" aria-busy="true">
       <span className="sr-only">Loading the latest articles</span>
+      <div className="mt-10 h-32 animate-pulse rounded-xl bg-muted motion-reduce:animate-none" aria-hidden="true" />
       <section className="py-10 sm:py-14" aria-hidden="true">
         <div className="mb-6 space-y-3">
           <div className="h-3 w-28 animate-pulse rounded bg-muted motion-reduce:animate-none" />
