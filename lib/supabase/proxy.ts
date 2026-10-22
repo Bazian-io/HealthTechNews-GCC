@@ -54,6 +54,8 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith("/auth") &&
     // Article pages are public content, same as the homepage.
     !request.nextUrl.pathname.startsWith("/news") &&
+    // Saved stories are a browser-local public reading list.
+    !request.nextUrl.pathname.startsWith("/saved") &&
     // Temporary: allow the disposable Supabase connectivity check to bypass
     // auth so it can be curled directly. Remove alongside that route.
     !request.nextUrl.pathname.startsWith("/api/test-supabase")

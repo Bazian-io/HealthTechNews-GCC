@@ -6,6 +6,7 @@ import {
 } from "@/components/briefing-freshness";
 import { ProductFooter } from "@/components/product-footer";
 import { ProductHeader } from "@/components/product-header";
+import { SaveStoryButton } from "@/components/saved-stories";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -217,6 +218,7 @@ async function HomeArticles() {
             </div>
 
             <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm">
+              <SaveStoryButton story={featuredArticle} variant="text" />
               {featuredArticle.slug?.trim() && (
                 <Link
                   href={`/news/${featuredArticle.slug}`}
@@ -253,14 +255,17 @@ async function HomeArticles() {
                       className="break-words font-editorial text-xl font-semibold leading-snug tracking-tight transition-colors hover:text-primary"
                     />
                   </h3>
-                  <a
-                    href={article.original_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-block text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                  >
-                    Original source ↗
-                  </a>
+                  <div className="flex items-center justify-between gap-3">
+                    <a
+                      href={article.original_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-block text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                    >
+                      Original source ↗
+                    </a>
+                    <SaveStoryButton story={article} />
+                  </div>
                 </article>
               ))}
             </div>

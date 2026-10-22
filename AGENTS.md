@@ -23,6 +23,8 @@ articles directly, explicitly requested on 10 October 2026. Its terminal command
 remains available, and Vercel Cron invokes its protected route daily at 05:00 UTC.
 The homepage keeps the previous visit timestamp in browser storage, highlights new
 articles, and groups the news stream by the day each article was added.
+Readers can also save up to 100 stories in browser storage and manage them at
+`/saved`; this reading list is device-local and does not write to Supabase.
 The optional Claude relevance checker is read-only and is not
 invoked by collection. Search/relevance quality still needs evaluation; collection
 alone does not establish relevance. The review/publication workflow is still planned.
@@ -63,7 +65,7 @@ alone does not establish relevance. The review/publication workflow is still pla
 - Collector checks: `npm run test:collector`, `npm run test:gdelt`,
   `npm run test:free-news`, `npm run test:relevance`, and
   `npx eslint lib/*.mjs scripts/*.mjs tests/*.mjs`.
-- Homepage freshness check: `npm run test:ui`.
+- Browser-local reader features check: `npm run test:ui`.
 - TypeScript check: `npx tsc --noEmit`. Production build: `npm run build`.
 - `npm run collect:news -- --dry-run` fetches the live feed but never accesses
   Supabase. `npm run collect:news` writes drafts to the configured database.

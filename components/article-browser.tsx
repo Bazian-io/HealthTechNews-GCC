@@ -1,6 +1,7 @@
 "use client";
 
 import { ArticleNewBadge } from "@/components/briefing-freshness";
+import { SaveStoryButton } from "@/components/saved-stories";
 import { getArticleDayGroup } from "@/lib/article-freshness.mjs";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -324,14 +325,17 @@ export function ArticleBrowser({
                           )}
                         </h4>
                       </div>
-                      <a
-                        href={article.original_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="w-fit text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                      >
-                        Original source ↗
-                      </a>
+                      <div className="flex items-center gap-3 sm:justify-end">
+                        <a
+                          href={article.original_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="w-fit text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                        >
+                          Original source ↗
+                        </a>
+                        <SaveStoryButton story={article} />
+                      </div>
                     </article>
                   );
                 })}

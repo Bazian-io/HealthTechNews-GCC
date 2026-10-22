@@ -1,5 +1,6 @@
 import { ProductFooter } from "@/components/product-footer";
 import { ProductHeader } from "@/components/product-header";
+import { SaveStoryButton } from "@/components/saved-stories";
 import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -28,9 +29,12 @@ type DiscoveryArticle = Pick<
   | "id"
   | "slug"
   | "title"
+  | "summary"
   | "source_name"
+  | "source_description"
   | "country"
   | "category"
+  | "original_url"
   | "published_at"
 >;
 
@@ -106,7 +110,7 @@ async function getDiscoveryArticles(currentArticle: Article) {
   const supabase = await createClient();
   const discoveryResult = await supabase
     .from("articles")
-    .select("id, slug, title, source_name, country, category, published_at")
+    .select("id, slug, title, summary, source_name, source_description, country, category, original_url, published_at")
     .eq("status", "published")
     .order("created_at", { ascending: false })
     .limit(13)
@@ -382,6 +386,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 ))}
               </dl>
             )}
+            <div className="mt-6">
+              <SaveStoryButton story={article} variant="text" />
+            </div>
           </header>
 
           <section
@@ -480,6 +487,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                           {discoveryMetadata}
                         </p>
                       )}
+                      <SaveStoryButton
+                        story={discoveryArticle}
+                        className="mt-5 self-end"
+                      />
                     </li>
                   );
                 })}

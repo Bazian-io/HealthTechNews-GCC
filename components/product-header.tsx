@@ -1,3 +1,4 @@
+import { SavedStoriesLink } from "@/components/saved-stories";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import Link from "next/link";
 
@@ -44,6 +45,7 @@ export function ProductHeader() {
               Browse<span className="hidden sm:inline"> news</span>
             </Link>
           </nav>
+          <SavedStoriesLink />
           <ThemeSwitcher />
         </div>
       </div>

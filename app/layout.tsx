@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Newsreader } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { SavedStoriesProvider } from "@/components/saved-stories";
 import "./globals.css";
 
 const deploymentHost =
@@ -78,7 +79,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <SavedStoriesProvider>{children}</SavedStoriesProvider>
         </ThemeProvider>
       </body>
     </html>

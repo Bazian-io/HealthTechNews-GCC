@@ -18,12 +18,13 @@ articles in groups of ten. It remembers the previous visit in the reader's brows
 reports newly added stories, marks them as new, and groups the stream into Today,
 Yesterday, and Earlier. Article pages connect country and topic labels back to
 filtered browsing and show additional published coverage. The public header offers
-light, dark, and system themes, with product-specific browser and social sharing
-artwork. The freshness UI remains local until its production deployment completes.
+light, dark, and system themes, plus a browser-local saved-stories reading list,
+with product-specific browser and social sharing artwork. The freshness and saved-
+story UI remain local until their production deployment completes.
 
 | Working now | Still to build |
 | --- | --- |
-| Editorial homepage, daily freshness briefing, searchable news stream, and article discovery links | Validate relevance accuracy and store verdicts |
+| Editorial homepage, daily freshness briefing, searchable news stream, saved stories, and article discovery links | Validate relevance accuracy and store verdicts |
 | Product favicon, social preview, metadata, and theme control | Summarization and classification |
 | Database error messages and article-not-found page | Review/publication workflow |
 | Unique slugs; published articles must have a nonblank slug | Persistent collection run history and alerting |
@@ -192,6 +193,18 @@ The previous-visit timestamp is stored only in that browser's local storage. A
 first-time visitor sees an explanation instead of an artificial new-story count,
 and the feature safely falls back when browser storage is unavailable. Source
 publication dates remain separate and are not inferred from collection time.
+
+### Saved stories
+
+Readers can save articles from Top stories, the news stream, article pages, and
+related coverage. The header shows the current count and links to `/saved`, where
+the reading list is ordered by when each story was saved and includes individual
+remove controls.
+
+The list stores a validated article snapshot in that browser's local storage and
+is capped at 100 stories. It does not require an account, query a private API, or
+write to Supabase. It syncs between open tabs, but not between devices or browsers;
+clearing browser data also clears the list.
 
 ## Run the RSS collector
 
@@ -438,6 +451,8 @@ and the configured backend key.
 | [app/page.tsx](app/page.tsx) | `/`: published articles ordered by insertion time, newest first, with attributed source excerpts |
 | [components/article-browser.tsx](components/article-browser.tsx) | Searchable, filtered, paginated, and day-grouped homepage news stream |
 | [components/briefing-freshness.tsx](components/briefing-freshness.tsx) | Browser-local visit tracking, freshness banner, and new-story badges |
+| [app/saved/page.tsx](app/saved/page.tsx) | `/saved`: browser-local reading list and empty state |
+| [components/saved-stories.tsx](components/saved-stories.tsx) | Saved-story provider, controls, header count, and reading-list UI |
 | [app/news/[slug]/page.tsx](app/news/[slug]/page.tsx) | `/news/[slug]`: published article details and original source link |
 | [app/news/[slug]/not-found.tsx](app/news/[slug]/not-found.tsx) | Missing/unpublished article page |
 | [lib/supabase](lib/supabase) | Website server/browser clients and login-cookie maintenance |
@@ -448,6 +463,7 @@ and the configured backend key.
 | [lib/free-news-collector.mjs](lib/free-news-collector.mjs) | FreeNewsAPI.ai queries, basic keyword filter, bounded requests, published article mapping |
 | [lib/free-news-cron.mjs](lib/free-news-cron.mjs) | Cron authorization, collector invocation, and safe HTTP result handling |
 | [lib/article-freshness.mjs](lib/article-freshness.mjs) | Tested timestamp comparison, GCC day grouping, and safe visit persistence |
+| [lib/saved-stories.mjs](lib/saved-stories.mjs) | Saved-story validation, limits, toggling, and safe browser persistence |
 | [app/api/cron/collect-free-news/route.ts](app/api/cron/collect-free-news/route.ts) | Protected Vercel Cron route for daily FreeNewsAPI.ai collection |
 | [scripts/collect-free-news.mjs](scripts/collect-free-news.mjs) | FreeNewsAPI.ai collection/publication command and credential-free dry run |
 | [scripts/collect-news.mjs](scripts/collect-news.mjs) | Terminal command, environment loading, result output |
@@ -460,6 +476,7 @@ and the configured backend key.
 | [tests/free-news-collector.test.mjs](tests/free-news-collector.test.mjs) | Offline FreeNewsAPI.ai, publication, duplicate, metadata, failure, and CLI tests |
 | [tests/free-news-cron.test.mjs](tests/free-news-cron.test.mjs) | Offline cron authentication, execution, and error-response tests |
 | [tests/article-freshness.test.mjs](tests/article-freshness.test.mjs) | Offline day grouping, new-story counting, and browser-storage fallback tests |
+| [tests/saved-stories.test.mjs](tests/saved-stories.test.mjs) | Offline saved-story validation, limits, toggling, and storage fallback tests |
 | [tests/relevance.test.mjs](tests/relevance.test.mjs) | Relevance tests using a simulated Claude client; no network access |
 | [tests/fixtures/relevance-gold.json](tests/fixtures/relevance-gold.json) | Hand-checked relevance verdicts for the collected drafts |
 
@@ -489,6 +506,16 @@ npx tsc --noEmit
 
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
+
+**Recorded local verification on 22 October 2026 (saved stories):**
+
+- Added save/remove controls across the public reading experience, a live header
+  count, and the device-local `/saved` reading list with an empty state.
+- All 91 offline tests, full-project lint, TypeScript, `git diff --check`, and a
+  Next.js 16.4.0 webpack production build passed. The build prerendered `/saved`.
+- Browser verification covered save, remove, empty state, persistence after a
+  reload, and desktop/mobile dark-theme layouts. The 390px page had no horizontal
+  overflow. No database write, account change, or deployment was performed.
 
 **Recorded local verification on 22 October 2026 (reader freshness):**
 
