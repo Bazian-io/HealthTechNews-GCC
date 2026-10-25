@@ -507,6 +507,27 @@ npx tsc --noEmit
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
 
+**Recorded local verification on 25 October 2026 (Next.js security patch):**
+
+- Updated the exact pins for `next` and `eslint-config-next` from 16.4.0 to
+  16.4.3, the latest stable 16.4.x release verified against npm that day.
+  The lockfile updates their matching `@next/env`, `@next/eslint-plugin-next`,
+  and eight platform-specific `@next/swc-*` packages to 16.4.3. Next.js now
+  requires `sharp` >=0.35.5 within its 0.35.x range; the resolved version was
+  already 0.35.5. All other resolved dependency versions are unchanged.
+- The patch includes the fixes in the [14 October Next.js security update](https://nextjs.org/blog/nextjs-security-update-october-14-2026).
+  `npm audit --omit=dev` reports zero vulnerabilities. The full audit still
+  reports three existing moderate findings in the Tailwind development dependency
+  chain (`tailwindcss`, `postcss-nested`, and `postcss-selector-parser`).
+- A clean `npm ci`, all 91 committed offline tests, full-project lint,
+  `npx tsc --noEmit`, `git diff --check`, and the standard Turbopack production
+  build (`npm run build`) passed on Node.js 24.19.0. The build required network
+  access for Google Fonts and a fresh cache after a restricted worker-port error.
+- This verification used an isolated branch based on commit `8ca3b11`.
+  The uncommitted trending-news feature was excluded, and the original checkout
+  was verified unchanged. Application code and configuration are unchanged;
+  no merge, deployment, database write, or environment-file copy was performed.
+
 **Recorded local verification on 22 October 2026 (saved stories):**
 
 - Added save/remove controls across the public reading experience, a live header
