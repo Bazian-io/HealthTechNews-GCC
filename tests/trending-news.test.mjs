@@ -24,11 +24,11 @@ function article(id, title, sourceName, ageHours, overrides = {}) {
   };
 }
 
-test("identifies a multi-publisher topic within the last 72 hours", () => {
+test("identifies a multi-publisher topic within the last seven days", () => {
   const result = analyzeTrendingNews([
     article("one", "Hospital launches AI-powered clinical platform", "Publisher A", 4),
     article("two", "Medical AI supports new hospital workflows", "Publisher B", 8),
-    article("old", "Artificial intelligence in healthcare", "Publisher C", 80),
+    article("old", "Artificial intelligence in healthcare", "Publisher C", 170),
   ], NOW);
 
   assert.equal(result.recent_article_count, 2);
@@ -37,6 +37,28 @@ test("identifies a multi-publisher topic within the last 72 hours", () => {
   assert.equal(result.trends[0].state, "Emerging");
   assert.equal(result.trends[0].publisher_count, 2);
   assert.deepEqual(result.trends[0].evidence.map((item) => item.id), ["one", "two"]);
+});
+
+test("includes seventh-day evidence and the 168-hour boundary, but excludes older stories", () => {
+  const result = analyzeTrendingNews([
+    article("recent", "Clinical AI platform launches", "Publisher A", 4),
+    article("seventh-day", "Medical AI supports hospital workflows", "Publisher B", 140),
+    article("boundary", "Clinical AI enters testing", "Publisher B", 168),
+    article("outside", "Medical AI system announced", "Publisher C", 168, {
+      created_at: new Date(Date.parse(hoursAgo(168)) - 1).toISOString(),
+    }),
+  ], NOW);
+
+  assert.equal(result.window_start, hoursAgo(168));
+  assert.equal(result.recent_article_count, 3);
+  assert.equal(result.trends.length, 1);
+  const trend = result.trends[0];
+  assert.equal(trend.story_count, 3);
+  assert.equal(trend.publisher_count, 2);
+  assert.equal(trend.latest_24h_count, 1);
+  assert.deepEqual(trend.evidence.map((item) => item.id), ["recent", "seventh-day", "boundary"]);
+  assert.deepEqual(trend.chart_counts, [1, 1, 0, 0, 0, 0, 1]);
+  assert.match(trend.analysis, /past 7 days/);
 });
 
 test("does not label one publisher or unrelated stories as a trend", () => {
@@ -67,9 +89,9 @@ test("ranks publisher breadth before raw article count", () => {
   assert.equal(result.trends[1].story_count, 4);
 });
 
-test("marks rising coverage as accelerating and places it into six chart buckets", () => {
+test("marks rising coverage as accelerating and places it into seven daily chart buckets", () => {
   const result = analyzeTrendingNews([
-    article("old", "Medical AI enters clinical testing", "Publisher A", 55),
+    article("old", "Medical AI enters clinical testing", "Publisher A", 150),
     article("new-one", "AI-powered hospital tool launches", "Publisher B", 8),
     article("new-two", "Clinical AI platform expands", "Publisher C", 2),
   ], NOW);
@@ -77,8 +99,8 @@ test("marks rising coverage as accelerating and places it into six chart buckets
 
   assert.equal(trend.state, "Accelerating");
   assert.equal(trend.latest_24h_count, 2);
-  assert.equal(trend.chart_counts.length, TREND_WINDOW_HOURS / 12);
-  assert.equal(trend.chart_counts.reduce((sum, count) => sum + count, 0), 3);
+  assert.equal(trend.chart_counts.length, TREND_WINDOW_HOURS / 24);
+  assert.deepEqual(trend.chart_counts, [1, 0, 0, 0, 0, 0, 2]);
 });
 
 test("uses title matches ahead of weaker excerpt matches so evidence is not duplicated", () => {

@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { TREND_WINDOW_HOURS } from "@/lib/trending-news.mjs";
+
+const TREND_WINDOW_DAYS = TREND_WINDOW_HOURS / 24;
 
 type EvidenceArticle = {
   id: string;
@@ -61,13 +64,13 @@ function ArticleLink({ article }: { article: EvidenceArticle }) {
 function MomentumChart({ trend }: { trend: Trend }) {
   const maximum = Math.max(1, ...trend.chart_counts);
   const chartSummary = trend.chart_counts
-    .map((count, index) => `period ${index + 1}: ${count}`)
+    .map((count, index) => `day ${index + 1}: ${count}`)
     .join(", ");
 
   return (
     <figure className="min-w-0" aria-labelledby="trend-chart-caption">
       <div className="flex items-start justify-between gap-4 text-xs">
-        <span className="leading-5 text-muted-foreground">Coverage momentum</span>
+        <span className="leading-5 text-muted-foreground">Related stories by day</span>
         <span className="max-w-32 text-right font-semibold leading-5">
           {trend.latest_24h_count === trend.story_count
             ? "All activity arrived today"
@@ -77,7 +80,7 @@ function MomentumChart({ trend }: { trend: Trend }) {
       <div
         className="mt-4 flex h-32 items-end gap-2 border-b border-primary/20 px-2"
         role="img"
-        aria-label={`Related stories in six 12-hour periods, oldest to newest: ${chartSummary}`}
+        aria-label={`Related stories added each day over the past ${trend.chart_counts.length} days, oldest to newest: ${chartSummary}`}
       >
         {trend.chart_counts.map((count, index) => (
           <span
@@ -89,12 +92,12 @@ function MomentumChart({ trend }: { trend: Trend }) {
         ))}
       </div>
       <div className="mt-2 flex justify-between text-[0.65rem] text-muted-foreground" aria-hidden="true">
-        <span>72h ago</span>
-        <span>36h</span>
+        <span>{TREND_WINDOW_DAYS} days ago</span>
+        <span>{Math.floor(TREND_WINDOW_DAYS / 2)} days ago</span>
         <span>Now</span>
       </div>
       <figcaption id="trend-chart-caption" className="mt-4 text-xs leading-5 text-muted-foreground">
-        Stories added to this briefing in 12-hour periods—not overall market activity.
+        Each bar shows related stories added that day.
       </figcaption>
     </figure>
   );
@@ -106,7 +109,7 @@ function QuietTrendState({ analysis }: { analysis: TrendingNewsAnalysis }) {
   return (
     <div className="mt-8 border-y border-primary/15 py-7 sm:py-8">
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
-        A quieter three days
+        A quieter week
       </p>
       <h3 className="mt-3 font-editorial text-3xl font-semibold tracking-tight">
         No clear multi-source trend yet
@@ -161,7 +164,7 @@ export function TrendingNews({ analysis }: { analysis: TrendingNewsAnalysis }) {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-            Trending · Last 72 hours
+            Trending · This week
           </p>
           <h2
             id="trending-news-heading"
@@ -186,11 +189,7 @@ export function TrendingNews({ analysis }: { analysis: TrendingNewsAnalysis }) {
         <>
           <div className="mt-8 grid gap-8 border-y border-primary/15 py-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(17rem,0.8fr)] lg:items-center lg:gap-14">
             <article aria-live="polite" aria-atomic="true">
-              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
-                <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
-                {selectedTrend.state}
-              </p>
-              <h3 className="mt-4 font-editorial text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+              <h3 className="font-editorial text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
                 {selectedTrend.headline}
               </h3>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
@@ -216,7 +215,7 @@ export function TrendingNews({ analysis }: { analysis: TrendingNewsAnalysis }) {
                     key={trend.id}
                     type="button"
                     onClick={() => setSelectedTrendId(trend.id)}
-                    className="grid min-h-16 w-full gap-1 px-3 py-4 text-left transition-colors hover:bg-accent/45 focus-visible:bg-accent/45 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center sm:gap-6"
+                    className="grid min-h-16 w-full gap-1 px-3 py-4 text-left transition-colors hover:bg-accent/45 focus-visible:bg-accent/45 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-6"
                     aria-label={`Show trend: ${trend.label}`}
                   >
                     <span className="font-editorial text-lg font-semibold">
@@ -224,9 +223,6 @@ export function TrendingNews({ analysis }: { analysis: TrendingNewsAnalysis }) {
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {trend.story_count} stories · {trend.publisher_count} publishers
-                    </span>
-                    <span className="text-xs font-medium text-primary">
-                      {trend.state} {trend.state === "Accelerating" ? "↑" : trend.state === "Emerging" ? "↗" : "→"}
                     </span>
                   </button>
                 ))}

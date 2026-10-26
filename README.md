@@ -9,7 +9,7 @@ The goal is to have fresh, relevant news ready on the website each morning.
 
 ## Current milestone
 
-**As of 25 October 2026:** FreeNewsAPI.ai is the primary news source for this
+**As of 26 October 2026:** FreeNewsAPI.ai is the primary news source for this
 initial version. Its collector automatically publishes new articles that pass a
 basic GCC HealthTech keyword filter, as explicitly requested. RSS and GDELT remain
 available and save drafts only. The public website now uses an editorial briefing
@@ -20,12 +20,12 @@ Yesterday, and Earlier. Article pages connect country and topic labels back to
 filtered browsing and show additional published coverage. The public header offers
 light, dark, and system themes, plus a browser-local saved-stories reading list,
 with product-specific browser and social sharing artwork. The homepage now opens
-with an evidence-backed analysis of trends in the latest 72 hours. These reader UI
+with an evidence-backed analysis of trends from the latest seven days. These reader UI
 changes remain local until their production deployment completes.
 
 | Working now | Still to build |
 | --- | --- |
-| Editorial homepage, 72-hour trend analysis, daily freshness briefing, searchable news stream, saved stories, and article discovery links | Validate relevance accuracy and store verdicts |
+| Editorial homepage, weekly trend analysis, daily freshness briefing, searchable news stream, saved stories, and article discovery links | Validate relevance accuracy and store verdicts |
 | Product favicon, social preview, metadata, and theme control | Summarization and classification |
 | Database error messages and article-not-found page | Review/publication workflow |
 | Unique slugs; published articles must have a nonblank slug | Persistent collection run history and alerting |
@@ -207,15 +207,16 @@ is capped at 100 stories. It does not require an account, query a private API, o
 write to Supabase. It syncs between open tabs, but not between devices or browsers;
 clearing browser data also clears the list.
 
-### Trending in the last 72 hours
+### Trending this week
 
-The homepage groups recently added published articles into transparent HealthTech
-themes using their headlines and stored summary or publisher excerpt. It ranks
-qualifying themes by distinct publisher breadth, story count, and recent momentum.
+The homepage groups published articles added in the past seven days into transparent
+HealthTech themes using their headlines and stored summary or publisher excerpt.
+It ranks qualifying themes by distinct publisher breadth, story count, and recent momentum.
 A trend requires at least two related stories from two named publishers, so one
 publisher repeating a subject cannot create a trend by itself.
 
-The leading trend shows a six-period momentum graph, a plain-language explanation,
+The leading trend shows seven daily graph periods labelled as related stories by day,
+a plain-language explanation,
 story and publisher counts, and the exact published articles used as evidence. Up
 to two other trends appear under “Also trending”; selecting one promotes it to the
 main position and updates the evidence. Momentum describes when stories were added
@@ -223,7 +224,7 @@ to this briefing, not overall GCC market activity or popularity across the web.
 
 This is free, deterministic analysis performed from existing page data. It does
 not call AI, write classifications to Supabase, or infer missing countries. When
-the 72-hour window lacks enough multi-publisher evidence, the section says so and
+the seven-day window lacks enough multi-publisher evidence, the section says so and
 shows the latest developments instead of inventing a trend.
 
 ## Run the RSS collector
@@ -485,7 +486,7 @@ and the configured backend key.
 | [lib/free-news-cron.mjs](lib/free-news-cron.mjs) | Cron authorization, collector invocation, and safe HTTP result handling |
 | [lib/article-freshness.mjs](lib/article-freshness.mjs) | Tested timestamp comparison, GCC day grouping, and safe visit persistence |
 | [lib/saved-stories.mjs](lib/saved-stories.mjs) | Saved-story validation, limits, toggling, and safe browser persistence |
-| [lib/trending-news.mjs](lib/trending-news.mjs) | Tested 72-hour topic grouping, multi-publisher threshold, ranking, and momentum analysis |
+| [lib/trending-news.mjs](lib/trending-news.mjs) | Tested seven-day topic grouping, multi-publisher threshold, ranking, and momentum analysis |
 | [app/api/cron/collect-free-news/route.ts](app/api/cron/collect-free-news/route.ts) | Protected Vercel Cron route for daily FreeNewsAPI.ai collection |
 | [scripts/collect-free-news.mjs](scripts/collect-free-news.mjs) | FreeNewsAPI.ai collection/publication command and credential-free dry run |
 | [scripts/collect-news.mjs](scripts/collect-news.mjs) | Terminal command, environment loading, result output |
@@ -529,6 +530,22 @@ npx tsc --noEmit
 
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
+
+**Recorded local verification on 26 October 2026 (weekly trend window):**
+
+- Extended the rolling analysis window to seven days and changed the graph to
+  seven daily periods. The heading, axis labels, accessible chart description,
+  concise daily-story caption, analysis text, and quiet-state wording now describe
+  this week. Visible momentum labels were removed to keep the section focused on
+  the trend itself. The two-story,
+  two-publisher evidence threshold and latest-24-hour momentum comparison remain.
+- All 98 offline tests, lint, TypeScript, `git diff --check`, and the standard
+  Next.js 16.4.3 production build passed. Regression coverage includes seventh-day
+  stories, the exact 168-hour cutoff, and exclusion one millisecond before it.
+- Rendered HTML checks confirmed seven bars, the day labels, secondary trends,
+  supporting evidence, and the quiet state. The local homepage returned HTTP 200
+  with the weekly heading. No deployment or database write
+  was performed.
 
 **Recorded local verification on 25 October 2026 (72-hour trend analysis):**
 
