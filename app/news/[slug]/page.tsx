@@ -256,15 +256,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-5 py-16 focus:outline-none sm:px-8"
         >
           <section
-            className="rounded-xl border border-primary/15 bg-card p-6 shadow-sm sm:p-8"
+            className="rounded-lg border border-border bg-card p-6 shadow-panel sm:p-8"
             aria-labelledby="article-error-heading"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+            <p className="editorial-kicker">
               Article
             </p>
             <h1
               id="article-error-heading"
-              className="mt-3 font-editorial text-4xl font-semibold tracking-tight"
+              className="mt-3 font-editorial text-4xl font-medium tracking-tight"
             >
               Unable to load article
             </h1>
@@ -352,21 +352,21 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
         <article className="mx-auto mt-10 max-w-3xl sm:mt-14">
           <header>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+            <p className="editorial-kicker">
               GCC HealthTech briefing
             </p>
-            <h1 className="mt-4 break-words font-editorial text-4xl font-semibold leading-[1.06] tracking-tight sm:text-6xl">
+            <h1 className="mt-4 break-words font-editorial text-4xl font-medium leading-[1.1] tracking-tight sm:text-[3.5rem]">
               {article.title}
             </h1>
 
             {metadata.length > 0 && (
-              <dl className="mt-8 grid gap-x-8 gap-y-5 rounded-xl border border-primary/15 bg-card p-5 shadow-sm sm:grid-cols-2 sm:p-6">
+              <dl className="mt-8 grid gap-x-8 gap-y-5 rounded-lg border border-border bg-card p-5 shadow-panel sm:grid-cols-2 sm:p-6">
                 {metadata.map((item) => (
                   <div key={item.label}>
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    <dt className="text-[0.6875rem] font-semibold uppercase leading-5 tracking-[0.12em] text-muted-foreground">
                       {item.label}
                     </dt>
-                    <dd className="mt-1 text-sm font-medium">
+                    <dd className="mt-2 break-words text-sm font-medium">
                       {item.browseFilter ? (
                         <Link
                           href={{
@@ -397,7 +397,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           >
             <h2
               id="article-summary-heading"
-              className="text-xs font-semibold uppercase tracking-[0.16em] text-primary"
+              className="editorial-kicker editorial-accent"
             >
               {excerptLabel}
             </h2>
@@ -414,12 +414,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           </section>
 
           <aside
-            className="rounded-xl border border-primary/15 bg-accent/45 p-6 sm:p-8"
+            className="rounded-lg border border-border bg-card p-6 shadow-panel sm:p-8"
             aria-labelledby="source-heading"
           >
             <h2
               id="source-heading"
-              className="font-editorial text-2xl font-semibold"
+              className="font-editorial text-2xl font-medium"
             >
               Continue with the original source
             </h2>
@@ -439,15 +439,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
         {(discoveryArticles.length > 0 || discoveryHasError) && (
           <section
-            className="mx-auto mt-14 max-w-5xl border-t border-primary/15 pt-10 sm:mt-16 sm:pt-12"
+            className="mx-auto mt-14 max-w-5xl border-t border-border pt-10 sm:mt-16 sm:pt-12"
             aria-labelledby="continue-exploring-heading"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+            <p className="editorial-kicker">
               From the briefing
             </p>
             <h2
               id="continue-exploring-heading"
-              className="mt-2 font-editorial text-3xl font-semibold tracking-tight"
+              className="mt-2 font-editorial text-3xl font-medium leading-tight tracking-tight sm:text-[2rem]"
             >
               Continue exploring
             </h2>
@@ -469,21 +469,21 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                   return (
                     <li
                       key={discoveryArticle.id}
-                      className="flex min-w-0 flex-col rounded-xl border border-primary/15 bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
+                      className="flex min-w-0 flex-col rounded-lg border border-border bg-card p-6 shadow-panel transition-shadow hover:shadow-panel-hover"
                     >
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                      <p className="editorial-kicker">
                         {getDiscoveryLabel(article, discoveryArticle)}
                       </p>
                       <h3 className="mt-3">
                         <Link
                           href={`/news/${discoveryArticle.slug}`}
-                          className="break-words font-editorial text-xl font-semibold leading-snug underline-offset-4 transition-colors hover:text-primary hover:underline"
+                          className="break-words font-editorial text-[1.375rem] font-medium leading-snug underline-offset-4 transition-colors hover:text-primary hover:underline"
                         >
                           {discoveryArticle.title}
                         </Link>
                       </h3>
                       {discoveryMetadata && (
-                        <p className="mt-4 text-xs leading-5 text-muted-foreground">
+                        <p className="mt-4 text-xs font-medium leading-5 text-muted-foreground">
                           {discoveryMetadata}
                         </p>
                       )}

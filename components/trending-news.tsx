@@ -48,7 +48,7 @@ function formatUpdateTime(value: string) {
 
 function ArticleLink({ article }: { article: EvidenceArticle }) {
   const className =
-    "break-words font-editorial text-base font-semibold leading-snug underline-offset-4 transition-colors hover:text-primary hover:underline";
+    "break-words font-editorial text-lg font-medium leading-snug underline-offset-4 transition-colors hover:text-primary hover:underline";
 
   if (!article.slug) {
     return <span className={className}>{article.title}</span>;
@@ -68,30 +68,30 @@ function MomentumChart({ trend }: { trend: Trend }) {
     .join(", ");
 
   return (
-    <figure className="min-w-0" aria-labelledby="trend-chart-caption">
+    <figure className="min-w-0 rounded-lg border border-border/80 bg-muted/35 p-4 sm:p-5" aria-labelledby="trend-chart-caption">
       <div className="flex items-start justify-between gap-4 text-xs">
-        <span className="leading-5 text-muted-foreground">Related stories by day</span>
-        <span className="max-w-32 text-right font-semibold leading-5">
+        <span className="font-medium leading-5 text-muted-foreground">Related stories by day</span>
+        <span className="max-w-32 text-right font-medium leading-5 tabular-nums">
           {trend.latest_24h_count === trend.story_count
             ? "All activity arrived today"
             : `${trend.latest_24h_count} ${trend.latest_24h_count === 1 ? "story" : "stories"} in the latest 24h`}
         </span>
       </div>
       <div
-        className="mt-4 flex h-32 items-end gap-2 border-b border-primary/20 px-2"
+        className="chart-grid mt-5 flex h-32 items-end gap-2 border-b border-border px-1 sm:gap-3"
         role="img"
         aria-label={`Related stories added each day over the past ${trend.chart_counts.length} days, oldest to newest: ${chartSummary}`}
       >
         {trend.chart_counts.map((count, index) => (
           <span
             key={index}
-            className={`block min-h-1 flex-1 rounded-t-sm ${count > 0 ? "bg-primary" : "bg-primary/15"}`}
+            className={`block min-h-1 flex-1 rounded-t-sm ${count > 0 ? "bg-chart-1" : "bg-border"}`}
             style={{ height: count > 0 ? `${Math.max(12, (count / maximum) * 100)}%` : "3%" }}
             aria-hidden="true"
           />
         ))}
       </div>
-      <div className="mt-2 flex justify-between text-[0.65rem] text-muted-foreground" aria-hidden="true">
+      <div className="mt-3 flex justify-between text-[0.6875rem] tabular-nums text-muted-foreground" aria-hidden="true">
         <span>{TREND_WINDOW_DAYS} days ago</span>
         <span>{Math.floor(TREND_WINDOW_DAYS / 2)} days ago</span>
         <span>Now</span>
@@ -107,11 +107,11 @@ function QuietTrendState({ analysis }: { analysis: TrendingNewsAnalysis }) {
   const articleCount = analysis.recent_article_count;
 
   return (
-    <div className="mt-8 border-y border-primary/15 py-7 sm:py-8">
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+    <div className="mt-8 border-y border-border py-7 sm:py-8">
+      <p className="editorial-kicker">
         A quieter week
       </p>
-      <h3 className="mt-3 font-editorial text-3xl font-semibold tracking-tight">
+      <h3 className="mt-3 font-editorial text-3xl font-medium tracking-tight">
         No clear multi-source trend yet
       </h3>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -125,7 +125,7 @@ function QuietTrendState({ analysis }: { analysis: TrendingNewsAnalysis }) {
           <h4 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Latest developments
           </h4>
-          <ul className="mt-3 divide-y divide-primary/10 border-y border-primary/10">
+          <ul className="mt-3 divide-y divide-border border-y border-border">
             {analysis.latest_articles.map((article) => (
               <li key={article.id} className="grid gap-1 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-6">
                 <ArticleLink article={article} />
@@ -158,17 +158,17 @@ export function TrendingNews({ analysis }: { analysis: TrendingNewsAnalysis }) {
   return (
     <section
       id="trending-news"
-      className="mt-10 overflow-hidden rounded-2xl border border-primary/20 bg-card px-6 py-8 shadow-sm sm:px-8 sm:py-10"
+      className="mt-12 scroll-mt-24 overflow-hidden rounded-lg border border-border bg-card px-6 py-7 shadow-panel sm:mt-14 sm:px-10 sm:py-9"
       aria-labelledby="trending-news-heading"
     >
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+          <p className="editorial-kicker editorial-accent">
             Trending · This week
           </p>
           <h2
             id="trending-news-heading"
-            className="mt-2 max-w-3xl font-editorial text-3xl font-semibold leading-tight tracking-tight sm:text-4xl"
+            className="mt-2 max-w-3xl font-editorial text-3xl font-medium leading-tight tracking-tight sm:text-[2rem]"
           >
             What is shaping GCC HealthTech right now
           </h2>
@@ -177,7 +177,7 @@ export function TrendingNews({ analysis }: { analysis: TrendingNewsAnalysis }) {
           </p>
         </div>
         {updatedAt && (
-          <p className="shrink-0 text-xs text-muted-foreground">
+          <p className="shrink-0 pt-1 text-xs tabular-nums text-muted-foreground">
             Updated {updatedAt} GCC time
           </p>
         )}
@@ -187,15 +187,15 @@ export function TrendingNews({ analysis }: { analysis: TrendingNewsAnalysis }) {
         <QuietTrendState analysis={analysis} />
       ) : (
         <>
-          <div className="mt-8 grid gap-8 border-y border-primary/15 py-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(17rem,0.8fr)] lg:items-center lg:gap-14">
+          <div className="mt-7 grid gap-7 border-y border-border py-7 lg:grid-cols-[minmax(0,1.2fr)_minmax(17rem,0.8fr)] lg:items-center lg:gap-10">
             <article aria-live="polite" aria-atomic="true">
-              <h3 className="font-editorial text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+              <h3 className="font-editorial text-3xl font-medium leading-[1.15] tracking-tight sm:text-[2.125rem]">
                 {selectedTrend.headline}
               </h3>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-[0.9375rem]">
                 {selectedTrend.analysis}
               </p>
-              <p className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+              <p className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm tabular-nums">
                 <span><strong className="font-semibold">{selectedTrend.story_count}</strong> related stories</span>
                 <span><strong className="font-semibold">{selectedTrend.publisher_count}</strong> publishers</span>
               </p>
@@ -209,16 +209,16 @@ export function TrendingNews({ analysis }: { analysis: TrendingNewsAnalysis }) {
               <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                 Also trending
               </h3>
-              <div className="mt-3 divide-y divide-primary/15 border-y border-primary/15">
+              <div className="mt-3 divide-y divide-border border-y border-border">
                 {alsoTrending.map((trend) => (
                   <button
                     key={trend.id}
                     type="button"
                     onClick={() => setSelectedTrendId(trend.id)}
-                    className="grid min-h-16 w-full gap-1 px-3 py-4 text-left transition-colors hover:bg-accent/45 focus-visible:bg-accent/45 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-6"
+                    className="grid min-h-16 w-full gap-1 px-3 py-4 text-left transition-colors hover:bg-muted/60 focus-visible:bg-muted/60 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-6"
                     aria-label={`Show trend: ${trend.label}`}
                   >
-                    <span className="font-editorial text-lg font-semibold">
+                    <span className="font-editorial text-xl font-medium">
                       {trend.label}
                     </span>
                     <span className="text-xs text-muted-foreground">
@@ -231,14 +231,17 @@ export function TrendingNews({ analysis }: { analysis: TrendingNewsAnalysis }) {
           )}
 
           <aside
-            className="mt-7 border-l-2 border-primary bg-accent/30 px-5 py-5 sm:px-6"
+            className="editorial-border mt-7 rounded-r-md border-l-2 bg-muted/45 px-5 py-5 sm:px-6"
             aria-labelledby="trend-evidence-heading"
             aria-live="polite"
           >
-            <h3 id="trend-evidence-heading" className="text-sm font-semibold">
+            <h3
+              id="trend-evidence-heading"
+              className="editorial-kicker editorial-accent"
+            >
               Evidence behind this trend
             </h3>
-            <ul className="mt-3 divide-y divide-primary/10">
+            <ul className="mt-3 divide-y divide-border">
               {selectedTrend.evidence.map((article) => (
                 <li key={article.id} className="grid gap-1 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-6">
                   <ArticleLink article={article} />

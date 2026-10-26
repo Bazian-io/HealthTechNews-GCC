@@ -207,6 +207,17 @@ is capped at 100 stories. It does not require an account, query a private API, o
 write to Supabase. It syncs between open tabs, but not between devices or browsers;
 clearing browser data also clears the list.
 
+### Reader appearance
+
+The reader uses a cool slate canvas with white and faint warm feature surfaces in
+light mode, plus layered slate surfaces and soft-white text in dark mode. Teal
+remains the primary accent; muted burgundy highlights selected editorial labels
+and evidence details. Neutral borders, subtle shadows, and consistent section
+spacing carry across the homepage, article pages, and saved stories. The original Geist and
+Newsreader fonts, content, section order, and reader functionality are preserved.
+Daily chart bars have faint guide lines, and controls retain visible keyboard
+focus indicators.
+
 ### Trending this week
 
 The homepage groups published articles added in the past seven days into transparent
@@ -530,6 +541,16 @@ npx tsc --noEmit
 
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
+
+**Recorded local verification on 26 October 2026 (visual refinement):**
+
+- All 16 reader tests, lint, TypeScript, `git diff --check`, and the standard
+  production build passed. Changes are limited to presentation and documentation.
+- Reviewed light/dark desktop and mobile screenshots of the homepage, articles,
+  saved stories, and missing-article state; checked 320px and 768px homepage widths.
+  Search, theme switching, and saving/removing stories worked in an isolated local
+  browser. The production homepage also rendered correctly in both themes.
+- No deployment or database write was performed.
 
 **Recorded local verification on 26 October 2026 (weekly trend window):**
 

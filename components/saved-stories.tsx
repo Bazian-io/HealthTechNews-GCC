@@ -160,7 +160,7 @@ export function SavedStoriesLink() {
       aria-label={ready ? `Saved stories, ${count}` : "Saved stories"}
       aria-current={isCurrentPage ? "page" : undefined}
       className={cn(
-        "inline-flex min-h-9 items-center gap-1.5 rounded-full border border-primary/15 px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-primary sm:px-3",
+        "inline-flex min-h-9 items-center gap-2 rounded-md border border-border bg-card px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-accent hover:text-primary sm:px-3",
         isCurrentPage && "bg-accent text-primary",
       )}
     >
@@ -203,7 +203,7 @@ export function SaveStoryButton({
       title={ready ? label : "Loading saved stories"}
       onClick={() => toggle(story)}
       className={cn(
-        variant === "icon" ? "rounded-full" : "gap-2",
+        variant === "icon" ? "rounded-md text-muted-foreground" : "gap-2",
         saved && "border-primary/35 bg-accent text-primary",
         className,
       )}
@@ -239,15 +239,15 @@ function SavedStoryItem({ story }: { story: SavedStory }) {
   const excerpt = story.summary || story.source_description;
 
   return (
-    <li className="rounded-xl border border-primary/15 bg-card p-5 shadow-sm sm:p-6">
+    <li className="rounded-lg border border-border bg-card p-6 shadow-panel sm:p-8">
       <article className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-8">
         <div className="min-w-0">
           {savedDate && (
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+            <p className="editorial-kicker editorial-accent">
               Saved {savedDate}
             </p>
           )}
-          <h2 className="mt-2 break-words font-editorial text-2xl font-semibold leading-snug tracking-tight">
+          <h2 className="mt-3 break-words font-editorial text-2xl font-medium leading-snug tracking-tight">
             {story.slug ? (
               <Link
                 href={`/news/${story.slug}`}
@@ -260,14 +260,14 @@ function SavedStoryItem({ story }: { story: SavedStory }) {
             )}
           </h2>
           {metadata && (
-            <p className="mt-2 text-xs leading-5 text-muted-foreground">
+            <p className="mt-3 text-xs font-medium leading-5 text-muted-foreground">
               {metadata}
             </p>
           )}
           {excerpt && (
             <div className="mt-4">
               {!story.summary && (
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-[0.6875rem] font-semibold uppercase leading-5 tracking-[0.12em] text-muted-foreground">
                   Publisher excerpt
                 </p>
               )}
@@ -276,7 +276,7 @@ function SavedStoryItem({ story }: { story: SavedStory }) {
               </p>
             </div>
           )}
-          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm">
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-border pt-5 text-sm">
             {story.slug && (
               <Link
                 href={`/news/${story.slug}`}
@@ -329,11 +329,11 @@ export function SavedStoriesList() {
 
   if (stories.length === 0) {
     return (
-      <section className="mt-8 rounded-xl border border-dashed border-primary/25 bg-card p-8 text-center sm:p-12" aria-labelledby="saved-empty-heading">
+      <section className="mt-10 rounded-lg border border-border bg-card px-6 py-10 text-center shadow-panel sm:p-14" aria-labelledby="saved-empty-heading">
         <span aria-hidden="true" className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-primary">
           <Bookmark size={22} />
         </span>
-        <h2 id="saved-empty-heading" className="mt-4 font-editorial text-2xl font-semibold">
+        <h2 id="saved-empty-heading" className="mt-5 font-editorial text-2xl font-medium">
           No saved stories yet
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
@@ -351,9 +351,9 @@ export function SavedStoriesList() {
 
   return (
     <section className="mt-8" aria-labelledby="saved-list-heading">
-      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-primary/15 pb-4">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-4">
         <div>
-          <h2 id="saved-list-heading" className="font-editorial text-2xl font-semibold">
+          <h2 id="saved-list-heading" className="font-editorial text-2xl font-medium">
             Your reading list
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -362,7 +362,7 @@ export function SavedStoriesList() {
         </div>
         <p className="text-xs text-muted-foreground">Newest saved first</p>
       </div>
-      <ul className="mt-5 space-y-4">
+      <ul className="mt-6 space-y-5">
         {stories.map((story) => <SavedStoryItem key={story.id} story={story} />)}
       </ul>
     </section>

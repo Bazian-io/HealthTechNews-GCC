@@ -4,14 +4,14 @@ import Link from "next/link";
 
 export function ProductHeader() {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-primary/15 bg-background/90 backdrop-blur-md">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-card/95 backdrop-blur-md">
       <a
         href="#main-content"
         className="sr-only z-50 rounded-md border border-primary/20 bg-card px-4 py-2 text-sm font-semibold text-primary shadow-md focus:fixed focus:left-4 focus:top-4 focus:not-sr-only"
       >
         Skip to content
       </a>
-      <div className="mx-auto flex min-h-16 w-full max-w-6xl items-center justify-between gap-6 px-5 py-3 sm:px-8">
+      <div className="mx-auto flex min-h-[4.5rem] w-full max-w-6xl items-center justify-between gap-3 px-5 py-3 sm:gap-6 sm:px-8">
         <Link href="/" className="group flex items-center gap-2.5">
           <svg
             aria-hidden="true"
@@ -25,13 +25,13 @@ export function ProductHeader() {
             />
             <rect x="25" y="25" width="14" height="14" rx="4" fill="#f7f3e8" />
           </svg>
-          <span className="font-editorial text-lg font-semibold tracking-tight">
+          <span className="font-editorial text-lg font-semibold tracking-tight sm:text-xl">
             GCC HealthTech<span className="hidden sm:inline"> News</span>
           </span>
         </Link>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <nav aria-label="Primary navigation" className="flex items-center gap-4">
+          <nav aria-label="Primary navigation" className="flex items-center gap-5 sm:mr-2">
             <Link
               href="/#top-stories"
               className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-primary sm:inline"

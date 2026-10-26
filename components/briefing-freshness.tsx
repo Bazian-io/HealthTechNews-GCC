@@ -94,7 +94,7 @@ export function BriefingFreshnessBanner() {
 
   return (
     <section
-      className="mt-10 flex items-start gap-4 rounded-xl border border-primary/20 bg-accent/45 p-5 shadow-sm sm:p-6"
+      className="mt-8 flex items-start gap-4 rounded-lg border border-border bg-muted/60 p-5 sm:p-6"
       aria-labelledby="briefing-freshness-heading"
     >
       <span
@@ -108,12 +108,12 @@ export function BriefingFreshnessBanner() {
         />
       </span>
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+        <p className="editorial-kicker">
           Daily briefing
         </p>
         <h2
           id="briefing-freshness-heading"
-          className="mt-1 font-editorial text-2xl font-semibold tracking-tight"
+          className="mt-1 font-editorial text-2xl font-medium tracking-tight"
           aria-live="polite"
         >
           {title}

@@ -25,7 +25,7 @@ export default function ArticleLoading() {
           <div className="mt-5 h-10 w-full animate-pulse rounded bg-muted motion-reduce:animate-none sm:h-14" />
           <div className="mt-3 h-10 w-4/5 animate-pulse rounded bg-muted motion-reduce:animate-none sm:h-14" />
 
-          <div className="mt-8 grid gap-5 rounded-xl border border-primary/15 bg-card p-5 sm:grid-cols-2 sm:p-6">
+          <div className="mt-8 grid gap-5 rounded-lg border border-border bg-card p-5 sm:grid-cols-2 sm:p-6">
             <div className="h-10 w-32 animate-pulse rounded bg-muted motion-reduce:animate-none" />
             <div className="h-10 w-32 animate-pulse rounded bg-muted motion-reduce:animate-none" />
           </div>
@@ -35,8 +35,8 @@ export default function ArticleLoading() {
             <div className="h-24 w-full animate-pulse rounded bg-muted motion-reduce:animate-none" />
           </div>
 
-          <div className="space-y-4 rounded-xl border border-primary/15 bg-accent/45 p-6 sm:p-8">
-            <div className="h-6 w-64 animate-pulse rounded bg-muted motion-reduce:animate-none" />
+          <div className="space-y-4 rounded-lg border border-border bg-card p-6 sm:p-8">
+            <div className="h-6 w-64 max-w-full animate-pulse rounded bg-muted motion-reduce:animate-none" />
             <div className="h-10 w-44 animate-pulse rounded bg-muted motion-reduce:animate-none" />
           </div>
         </article>

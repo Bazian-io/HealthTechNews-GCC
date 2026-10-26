@@ -30,7 +30,7 @@ const ThemeSwitcher = () => {
         size="icon"
         disabled
         aria-label="Loading color theme"
-        className="rounded-full border border-primary/15"
+        className="rounded-md border border-border bg-card"
       >
         <Laptop size={ICON_SIZE} aria-hidden="true" />
       </Button>
@@ -45,7 +45,7 @@ const ThemeSwitcher = () => {
           size="icon"
           aria-label={`Color theme: ${selectedTheme}. Change color theme`}
           title="Change color theme"
-          className="rounded-full border border-primary/15 text-muted-foreground hover:text-primary"
+          className="rounded-md border border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-primary"
         >
           {selectedTheme === "light" ? (
             <Sun

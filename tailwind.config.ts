@@ -11,6 +11,10 @@ export default {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        panel: "var(--shadow-panel)",
+        "panel-hover": "var(--shadow-panel-hover)",
+      },
       fontFamily: {
         editorial: ["var(--font-newsreader)", "Georgia", "serif"],
       },

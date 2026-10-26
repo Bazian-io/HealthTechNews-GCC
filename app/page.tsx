@@ -106,7 +106,7 @@ function ArticleMetadata({ article }: { article: Article }) {
   }
 
   return (
-    <p className="text-xs leading-5 text-muted-foreground">{metadata}</p>
+    <p className="text-xs font-medium leading-5 text-muted-foreground">{metadata}</p>
   );
 }
 
@@ -120,11 +120,11 @@ function ArticleExcerpt({ article }: { article: Article }) {
   return (
     <div className="space-y-2">
       {!article.summary && (
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <p className="editorial-kicker editorial-accent">
           Publisher excerpt
         </p>
       )}
-      <p className="leading-7 text-muted-foreground">{excerpt}</p>
+      <p className="text-[0.9375rem] leading-7 text-muted-foreground">{excerpt}</p>
     </div>
   );
 }
@@ -142,7 +142,7 @@ async function HomeArticles() {
   if (hasError) {
     return (
       <section
-        className="my-10 rounded-xl border border-primary/15 bg-card p-6 shadow-sm sm:p-8"
+        className="my-10 rounded-lg border border-border bg-card p-6 shadow-panel sm:p-8"
         aria-labelledby="articles-error-heading"
       >
         <h2
@@ -161,7 +161,7 @@ async function HomeArticles() {
   if (articles.length === 0) {
     return (
       <section
-        className="my-10 rounded-xl border border-primary/15 bg-card p-6 shadow-sm sm:p-8"
+        className="my-10 rounded-lg border border-border bg-card p-6 shadow-panel sm:p-8"
         aria-labelledby="empty-briefing-heading"
       >
         <h2
@@ -185,17 +185,17 @@ async function HomeArticles() {
       <BriefingFreshnessBanner />
       <section
         id="top-stories"
-        className="scroll-mt-6 py-10 sm:py-14"
+        className="mt-12 scroll-mt-24 border-t border-border/80 pb-12 pt-10 sm:mt-14 sm:pb-14 sm:pt-12"
         aria-labelledby="top-stories-heading"
       >
         <div className="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+          <div className="editorial-border border-l-2 pl-4">
+            <p className="editorial-kicker editorial-accent">
               Today&apos;s briefing
             </p>
             <h2
               id="top-stories-heading"
-              className="mt-2 font-editorial text-3xl font-semibold tracking-tight"
+              className="mt-2 font-editorial text-3xl font-medium leading-tight tracking-tight sm:text-[2rem]"
             >
               Top stories
             </h2>
@@ -209,10 +209,10 @@ async function HomeArticles() {
               : "grid"
           }
         >
-          <article className="flex flex-col justify-between gap-8 rounded-xl border border-primary/20 bg-card p-6 shadow-sm transition-shadow hover:shadow-md sm:p-8">
+          <article className="flex flex-col justify-between gap-8 rounded-lg border border-border bg-card p-6 shadow-panel transition-shadow hover:shadow-panel-hover sm:p-8">
             <div className="space-y-5">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+                <p className="editorial-kicker editorial-accent">
                   Featured
                 </p>
                 <ArticleNewBadge createdAt={featuredArticle.created_at} />
@@ -220,14 +220,14 @@ async function HomeArticles() {
               <h3>
                 <ArticleHeadline
                   article={featuredArticle}
-                  className="break-words font-editorial text-3xl font-semibold leading-tight tracking-tight transition-colors hover:text-primary sm:text-4xl"
+                  className="break-words font-editorial text-3xl font-medium leading-[1.15] tracking-tight transition-colors hover:text-primary sm:text-4xl"
                 />
               </h3>
               <ArticleMetadata article={featuredArticle} />
               <ArticleExcerpt article={featuredArticle} />
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-border pt-5 text-sm">
               <SaveStoryButton story={featuredArticle} variant="text" />
               {featuredArticle.slug?.trim() && (
                 <Link
@@ -249,11 +249,11 @@ async function HomeArticles() {
           </article>
 
           {secondaryArticles.length > 0 && (
-            <div className="divide-y overflow-hidden rounded-xl border border-primary/15 bg-card shadow-sm">
+            <div className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-panel">
               {secondaryArticles.map((article) => (
                 <article
                   key={article.id}
-                  className="space-y-3 p-5 transition-colors hover:bg-accent/35 sm:p-6"
+                  className="space-y-3 p-5 transition-colors hover:bg-muted/50 sm:p-6"
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     <ArticleNewBadge createdAt={article.created_at} />
@@ -262,7 +262,7 @@ async function HomeArticles() {
                   <h3>
                     <ArticleHeadline
                       article={article}
-                      className="break-words font-editorial text-xl font-semibold leading-snug tracking-tight transition-colors hover:text-primary"
+                      className="break-words font-editorial text-[1.375rem] font-medium leading-snug tracking-tight transition-colors hover:text-primary"
                     />
                   </h3>
                   <div className="flex items-center justify-between gap-3">
@@ -292,21 +292,21 @@ function HomeArticlesLoading() {
   return (
     <div role="status" aria-live="polite" aria-busy="true">
       <span className="sr-only">Loading the latest articles</span>
-      <div className="mt-10 h-96 animate-pulse rounded-2xl bg-muted motion-reduce:animate-none" aria-hidden="true" />
-      <div className="mt-10 h-32 animate-pulse rounded-xl bg-muted motion-reduce:animate-none" aria-hidden="true" />
-      <section className="py-10 sm:py-14" aria-hidden="true">
+      <div className="mt-8 h-96 animate-pulse rounded-lg bg-muted motion-reduce:animate-none" aria-hidden="true" />
+      <div className="mt-6 h-32 animate-pulse rounded-lg bg-muted motion-reduce:animate-none" aria-hidden="true" />
+      <section className="py-10 sm:py-12" aria-hidden="true">
         <div className="mb-6 space-y-3">
           <div className="h-3 w-28 animate-pulse rounded bg-muted motion-reduce:animate-none" />
           <div className="h-7 w-40 animate-pulse rounded bg-muted motion-reduce:animate-none" />
         </div>
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(18rem,0.85fr)]">
-          <div className="space-y-5 rounded-xl border border-primary/15 bg-card p-6 sm:p-8">
+          <div className="space-y-5 rounded-lg border border-border bg-card p-6 sm:p-8">
             <div className="h-3 w-20 animate-pulse rounded bg-muted motion-reduce:animate-none" />
             <div className="h-8 w-5/6 animate-pulse rounded bg-muted motion-reduce:animate-none" />
             <div className="h-4 w-2/3 animate-pulse rounded bg-muted motion-reduce:animate-none" />
             <div className="h-20 w-full animate-pulse rounded bg-muted motion-reduce:animate-none" />
           </div>
-          <div className="space-y-5 rounded-xl border border-primary/15 bg-card p-6">
+          <div className="space-y-5 rounded-lg border border-border bg-card p-6">
             <div className="h-4 w-2/3 animate-pulse rounded bg-muted motion-reduce:animate-none" />
             <div className="h-16 w-full animate-pulse rounded bg-muted motion-reduce:animate-none" />
             <div className="h-16 w-full animate-pulse rounded bg-muted motion-reduce:animate-none" />
@@ -333,21 +333,21 @@ export default function Home() {
       <main
         id="main-content"
         tabIndex={-1}
-        className="mx-auto w-full max-w-6xl flex-1 px-5 py-10 focus:outline-none sm:px-8 sm:py-14 lg:py-16"
+        className="mx-auto w-full max-w-6xl flex-1 px-5 py-8 focus:outline-none sm:px-8 sm:py-12"
       >
-        <section className="relative max-w-4xl overflow-hidden rounded-2xl border border-primary/15 bg-card px-6 py-8 shadow-sm sm:px-10 sm:py-12">
+        <section className="surface-hero relative w-full overflow-hidden rounded-lg border border-border border-t-[3px] border-t-primary px-6 py-8 shadow-panel sm:px-10 sm:py-10">
           <div
             aria-hidden="true"
-            className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-accent/70 blur-3xl"
+            className="hidden"
           />
           <div className="relative">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+            <p className="editorial-kicker mb-4">
               GCC HealthTech briefing
             </p>
-            <h1 className="max-w-3xl font-editorial text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
+            <h1 className="max-w-3xl font-editorial text-4xl font-medium leading-[1.1] tracking-tight sm:text-[3.5rem]">
               Health technology news from across the Gulf.
             </h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
+            <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground">
               Follow digital health, medical AI, telemedicine, devices,
               startups, investments, and partnerships across the six GCC
               markets.

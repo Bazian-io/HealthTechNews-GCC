@@ -188,16 +188,16 @@ export function ArticleBrowser({
   return (
     <section
       id="latest-news"
-      className="scroll-mt-6 border-t pt-10 sm:pt-12"
+      className="scroll-mt-24 border-t border-border pt-10 sm:pt-12"
       aria-labelledby="latest-news-heading"
     >
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+        <p className="editorial-kicker">
           The news stream
         </p>
         <h2
           id="latest-news-heading"
-          className="mt-2 font-editorial text-3xl font-semibold tracking-tight"
+          className="mt-2 font-editorial text-3xl font-medium leading-tight tracking-tight sm:text-[2rem]"
         >
           Browse news
         </h2>
@@ -208,7 +208,7 @@ export function ArticleBrowser({
         </p>
       </div>
 
-      <div className="mt-6 flex flex-col gap-4 rounded-xl border border-primary/15 bg-card p-4 shadow-sm md:flex-row md:items-end">
+      <div className="mt-7 flex flex-col gap-5 rounded-lg border border-border bg-card p-5 shadow-panel md:flex-row md:items-end sm:p-6">
         <label className="min-w-0 flex-1 text-sm font-medium" htmlFor="news-search">
           Search
           <input
@@ -217,7 +217,7 @@ export function ArticleBrowser({
             value={search}
             onChange={(event) => updateFilter("q", event.target.value)}
             placeholder="Search headlines, publishers, or topics"
-            className="mt-2 min-h-10 w-full rounded-md border border-input bg-background/70 px-3 py-2 text-sm font-normal outline-none transition-shadow placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="news-control min-w-0"
           />
         </label>
 
@@ -227,7 +227,7 @@ export function ArticleBrowser({
             id="country-filter"
             value={selectedCountry}
             onChange={(event) => updateFilter("country", event.target.value)}
-            className="mt-2 min-h-10 w-full rounded-md border border-input bg-background/70 px-3 py-2 text-sm font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="news-control"
           >
             <option value="">All countries</option>
             {GCC_COUNTRIES.map((option) => (
@@ -245,7 +245,7 @@ export function ArticleBrowser({
               id="category-filter"
               value={category}
               onChange={(event) => updateFilter("topic", event.target.value)}
-              className="mt-2 min-h-10 w-full rounded-md border border-input bg-background/70 px-3 py-2 text-sm font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="news-control"
             >
               <option value="">All topics</option>
               {categories.map((option) => (
@@ -261,7 +261,7 @@ export function ArticleBrowser({
           <button
             type="button"
             onClick={clearFilters}
-            className="min-h-10 w-fit rounded-md border border-primary/20 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-accent"
+            className="min-h-11 w-fit rounded-md border border-border px-4 py-2 text-sm font-medium text-primary transition-colors hover:border-primary/40 hover:bg-accent"
           >
             Clear
           </button>
@@ -281,10 +281,10 @@ export function ArticleBrowser({
         <div className="mt-5 space-y-8">
           {groupedArticles.map((group) => (
             <section key={group.id} aria-labelledby={`news-group-${group.id}`}>
-              <div className="flex items-baseline justify-between gap-4 border-b border-primary/20 pb-2">
+              <div className="flex items-baseline justify-between gap-4 border-b border-border pb-3">
                 <h3
                   id={`news-group-${group.id}`}
-                  className="font-editorial text-2xl font-semibold tracking-tight"
+                  className="font-editorial text-2xl font-medium tracking-tight"
                 >
                   {group.label}
                 </h3>
@@ -292,20 +292,20 @@ export function ArticleBrowser({
                   {group.articles.length} {group.articles.length === 1 ? "story" : "stories"} shown
                 </p>
               </div>
-              <div className="divide-y border-b border-primary/15">
+              <div className="divide-y divide-border border-b border-border">
                 {group.articles.map((article) => {
                   const metadata = getArticleMetadata(article);
 
                   return (
                     <article
                       key={article.id}
-                      className="grid gap-3 px-3 py-5 transition-colors hover:bg-accent/30 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8"
+                      className="grid gap-4 px-3 py-6 transition-colors hover:bg-card sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8 sm:px-4"
                     >
                       <div className="space-y-2">
                         <div className="flex flex-wrap items-center gap-2">
                           <ArticleNewBadge createdAt={article.created_at} />
                           {metadata && (
-                            <p className="text-xs leading-5 text-muted-foreground">
+                            <p className="text-xs font-medium leading-5 text-muted-foreground">
                               {metadata}
                             </p>
                           )}
@@ -314,12 +314,12 @@ export function ArticleBrowser({
                           {article.slug?.trim() ? (
                             <Link
                               href={`/news/${article.slug}`}
-                              className="break-words font-editorial text-xl font-semibold leading-snug underline-offset-4 transition-colors hover:text-primary hover:underline"
+                              className="break-words font-editorial text-[1.375rem] font-medium leading-snug underline-offset-4 transition-colors hover:text-primary hover:underline"
                             >
                               {article.title}
                             </Link>
                           ) : (
-                            <span className="break-words font-editorial text-xl font-semibold leading-snug">
+                            <span className="break-words font-editorial text-[1.375rem] font-medium leading-snug">
                               {article.title}
                             </span>
                           )}
@@ -360,7 +360,7 @@ export function ArticleBrowser({
                 Math.min(count + PAGE_SIZE, matchingArticles.length),
               )
             }
-            className="min-h-10 rounded-md border border-primary/20 bg-card px-5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="min-h-11 rounded-md border border-border bg-card px-6 py-2 text-sm font-medium text-primary shadow-panel transition-colors hover:border-primary/40 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Show {Math.min(PAGE_SIZE, remainingCount)} more
           </button>

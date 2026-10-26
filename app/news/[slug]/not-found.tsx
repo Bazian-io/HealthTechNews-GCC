@@ -12,15 +12,15 @@ export default function ArticleNotFound() {
         className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-5 py-16 focus:outline-none sm:px-8"
       >
         <section
-          className="rounded-xl border border-primary/15 bg-card p-6 shadow-sm sm:p-8"
+          className="rounded-lg border border-border bg-card p-6 shadow-panel sm:p-8"
           aria-labelledby="not-found-heading"
         >
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+          <p className="editorial-kicker">
             Article
           </p>
           <h1
             id="not-found-heading"
-            className="mt-3 font-editorial text-4xl font-semibold tracking-tight"
+            className="mt-3 font-editorial text-4xl font-medium tracking-tight"
           >
             Article not found
           </h1>

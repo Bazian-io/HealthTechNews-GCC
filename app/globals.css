@@ -4,57 +4,65 @@
 
 @layer base {
   :root {
-    --background: 42 33% 98%;
-    --foreground: 190 38% 13%;
+    --background: 214 24% 96%;
+    --foreground: 218 30% 18%;
     --card: 0 0% 100%;
-    --card-foreground: 190 38% 13%;
+    --card-foreground: 218 30% 18%;
     --popover: 0 0% 100%;
-    --popover-foreground: 190 38% 13%;
-    --primary: 174 63% 24%;
-    --primary-foreground: 42 33% 98%;
-    --secondary: 44 36% 92%;
-    --secondary-foreground: 190 38% 13%;
-    --muted: 42 25% 94%;
-    --muted-foreground: 190 12% 40%;
-    --accent: 171 35% 91%;
-    --accent-foreground: 180 45% 18%;
-    --destructive: 0 84.2% 60.2%;
+    --popover-foreground: 218 30% 18%;
+    --primary: 174 65% 25%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 22% 94%;
+    --secondary-foreground: 218 30% 22%;
+    --muted: 214 20% 94%;
+    --muted-foreground: 215 14% 41%;
+    --accent: 174 24% 94%;
+    --accent-foreground: 174 65% 22%;
+    --destructive: 0 65% 45%;
     --destructive-foreground: 0 0% 98%;
-    --border: 186 14% 84%;
-    --input: 186 14% 78%;
-    --ring: 174 63% 28%;
-    --chart-1: 174 63% 34%;
+    --border: 214 18% 82%;
+    --input: 214 16% 58%;
+    --ring: 174 65% 30%;
+    --chart-1: 174 55% 32%;
     --chart-2: 42 68% 54%;
     --chart-3: 195 45% 34%;
     --chart-4: 24 65% 58%;
     --chart-5: 154 35% 46%;
-    --radius: 0.75rem;
+    --surface-hero: 42 30% 98%;
+    --editorial-accent: 350 34% 32%;
+    --radius: 0.625rem;
+    --shadow-panel: 0 1px 2px hsl(218 30% 18% / 0.04), 0 8px 24px hsl(218 30% 18% / 0.04);
+    --shadow-panel-hover: 0 2px 4px hsl(218 30% 18% / 0.04), 0 8px 24px hsl(218 30% 18% / 0.06);
   }
   .dark {
-    --background: 190 33% 7%;
-    --foreground: 44 30% 94%;
-    --card: 190 28% 10%;
-    --card-foreground: 44 30% 94%;
-    --popover: 190 28% 10%;
-    --popover-foreground: 44 30% 94%;
-    --primary: 168 45% 58%;
-    --primary-foreground: 190 33% 7%;
-    --secondary: 187 20% 15%;
-    --secondary-foreground: 44 30% 94%;
-    --muted: 188 18% 14%;
-    --muted-foreground: 183 10% 66%;
-    --accent: 172 28% 18%;
-    --accent-foreground: 44 30% 94%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 185 15% 20%;
-    --input: 185 16% 24%;
-    --ring: 168 45% 58%;
-    --chart-1: 168 45% 58%;
+    --background: 218 27% 10%;
+    --foreground: 210 24% 94%;
+    --card: 218 24% 13%;
+    --card-foreground: 210 24% 94%;
+    --popover: 218 23% 16%;
+    --popover-foreground: 210 24% 94%;
+    --primary: 172 40% 65%;
+    --primary-foreground: 218 27% 10%;
+    --secondary: 218 22% 18%;
+    --secondary-foreground: 210 24% 94%;
+    --muted: 218 22% 17%;
+    --muted-foreground: 215 15% 70%;
+    --accent: 190 20% 19%;
+    --accent-foreground: 172 40% 77%;
+    --destructive: 0 70% 70%;
+    --destructive-foreground: 218 27% 10%;
+    --border: 216 17% 25%;
+    --input: 216 14% 44%;
+    --ring: 172 40% 65%;
+    --chart-1: 172 36% 58%;
     --chart-2: 42 68% 60%;
     --chart-3: 195 45% 56%;
     --chart-4: 24 65% 64%;
     --chart-5: 154 35% 55%;
+    --surface-hero: 218 24% 14%;
+    --editorial-accent: 350 38% 70%;
+    --shadow-panel: 0 1px 2px hsl(220 40% 3% / 0.16), 0 6px 20px hsl(220 40% 3% / 0.12);
+    --shadow-panel-hover: 0 2px 4px hsl(220 40% 3% / 0.2), 0 8px 24px hsl(220 40% 3% / 0.2);
   }
 }
 
@@ -65,11 +73,50 @@
   body {
     @apply bg-background text-foreground;
   }
+  h1, h2, h3, h4 {
+    text-wrap: pretty;
+  }
   ::selection {
     background: hsl(var(--primary) / 0.2);
   }
   :where(a, button, input, select, textarea):focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 3px;
+  }
+}
+
+@layer components {
+  .editorial-kicker {
+    @apply text-[0.6875rem] font-semibold uppercase leading-5 tracking-[0.14em] text-primary;
+  }
+
+  .editorial-accent {
+    color: hsl(var(--editorial-accent));
+  }
+
+  .editorial-kicker.editorial-accent {
+    @apply text-sm leading-6 tracking-[0.1em];
+  }
+
+  .editorial-border {
+    border-color: hsl(var(--editorial-accent) / 0.7);
+  }
+
+  .surface-hero {
+    background-color: hsl(var(--surface-hero));
+  }
+
+  .news-control {
+    @apply mt-2 min-h-11 w-full rounded-md border border-input bg-card px-3 py-2 text-sm font-normal text-foreground transition-colors placeholder:text-muted-foreground hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card;
+  }
+
+  .chart-grid {
+    background-image: repeating-linear-gradient(
+      to top,
+      transparent 0,
+      transparent calc(25% - 1px),
+      hsl(var(--border) / 0.6) calc(25% - 1px),
+      hsl(var(--border) / 0.6) 25%
+    );
   }
 }

@@ -18,10 +18,10 @@ export default function SavedStoriesPage() {
         tabIndex={-1}
         className="mx-auto w-full max-w-4xl flex-1 px-5 py-10 focus:outline-none sm:px-8 sm:py-14"
       >
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+        <p className="editorial-kicker editorial-accent">
           Your reading list
         </p>
-        <h1 className="mt-3 font-editorial text-4xl font-semibold tracking-tight sm:text-5xl">
+        <h1 className="mt-3 font-editorial text-4xl font-medium leading-[1.1] tracking-tight sm:text-5xl">
           Saved stories
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
