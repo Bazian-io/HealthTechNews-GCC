@@ -43,7 +43,9 @@
       "Bash(grep -n \"^#### \\\\`\\\\|deprecated\" node_modules/next/dist/docs/01-app/03-api-reference/02-components/image.md)",
       "Bash(python3 -)",
       "Bash(node --env-file=.env.local -e ' *)",
-      "Bash(node --env-file-if-exists=.env --env-file-if-exists=.env.local -e ' *)"
+      "Bash(node --env-file-if-exists=.env --env-file-if-exists=.env.local -e ' *)",
+      "Bash(git fetch *)",
+      "Bash(git rev-list *)"
     ]
   }
 }
