@@ -1,5 +1,6 @@
 "use client";
 
+import { ArticleImage } from "@/components/article-image";
 import Link from "next/link";
 import { useState } from "react";
 import { TREND_WINDOW_HOURS } from "@/lib/trending-news.mjs";
@@ -11,6 +12,7 @@ type EvidenceArticle = {
   slug: string | null;
   title: string;
   source_name: string | null;
+  image_url: string | null;
   created_at: string;
 };
 
@@ -58,6 +60,27 @@ function ArticleLink({ article }: { article: EvidenceArticle }) {
     <Link href={`/news/${article.slug}`} className={className}>
       {article.title}
     </Link>
+  );
+}
+
+function ArticleListItem({ article }: { article: EvidenceArticle }) {
+  return (
+    <li className="flex gap-4 py-3">
+      <ArticleImage
+        src={article.image_url}
+        sizes="4rem"
+        className="aspect-square w-16 shrink-0 self-start"
+        fallback="hide"
+      />
+      <div className="grid min-w-0 flex-1 gap-1 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-6">
+        <ArticleLink article={article} />
+        {article.source_name && (
+          <span className="text-xs text-muted-foreground">
+            {article.source_name}
+          </span>
+        )}
+      </div>
+    </li>
   );
 }
 
@@ -150,14 +173,7 @@ function QuietTrendState({ analysis }: { analysis: TrendingNewsAnalysis }) {
           </h4>
           <ul className="mt-3 divide-y divide-border border-y border-border">
             {analysis.latest_articles.map((article) => (
-              <li key={article.id} className="grid gap-1 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-6">
-                <ArticleLink article={article} />
-                {article.source_name && (
-                  <span className="text-xs text-muted-foreground">
-                    {article.source_name}
-                  </span>
-                )}
-              </li>
+              <ArticleListItem key={article.id} article={article} />
             ))}
           </ul>
         </div>
@@ -266,14 +282,7 @@ export function TrendingNews({ analysis }: { analysis: TrendingNewsAnalysis }) {
             </h3>
             <ul className="mt-3 divide-y divide-border">
               {selectedTrend.evidence.map((article) => (
-                <li key={article.id} className="grid gap-1 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-6">
-                  <ArticleLink article={article} />
-                  {article.source_name && (
-                    <span className="text-xs text-muted-foreground">
-                      {article.source_name}
-                    </span>
-                  )}
-                </li>
+                <ArticleListItem key={article.id} article={article} />
               ))}
             </ul>
           </aside>

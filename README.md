@@ -134,8 +134,8 @@ without deploying code. The updated excerpt display is local until deployed.
 - Saves the API's `image` field in `image_url` only when it is a public `https://`
   address; other values stay NULL. The image is never downloaded or rehosted:
   readers' browsers load it from the publisher, without sending a referrer, next
-  to the publisher credit and original-source link. Missing or broken images show
-  a neutral placeholder in news lists and are hidden on article pages.
+  to the publisher credit and original-source link. See "Article images" below
+  for how the website displays them.
 - Leaves `country`, `category`, and editorial `summary` NULL. Source descriptions
   remain separate and are labelled “Publisher excerpt” in the UI. Dates are kept
   only with `date_source = jsonld` or `meta` and a valid, non-future timestamp;
@@ -227,6 +227,22 @@ coverage. Daily chart bars have faint guide lines, and controls retain visible
 keyboard focus indicators. The sticky header uses a subtly elevated surface and
 clearer navigation states. Weekly chart labels cover the full seven-day window,
 with burgundy identifying the busiest day and teal showing the remaining activity.
+
+### Article images
+
+Publisher images appear in Top stories, the news stream, article pages, Continue
+exploring, trend evidence, and saved stories. They load directly from the publisher
+with a short shimmer and fade-in; nothing is downloaded, rehosted, or optimized.
+
+- Top stories keep newest-first order, but the Featured slot uses the newest of the
+  latest four stories that has an image. The other three appear alongside it.
+- Card layouts (Featured, Top stories, Continue exploring) show a branded teal
+  placeholder with the publisher's initial when no usable image exists. List layouts
+  (news stream, trend evidence, saved stories, article page) stay text-only instead.
+- Images narrower than 300 pixels, usually publisher logos, and images that fail to
+  load are treated as missing.
+- Saved stories remember the image address from the time of saving. Stories saved
+  before this feature, and articles collected before 26 October 2026, have none.
 
 ### Trending this week
 
@@ -494,7 +510,8 @@ and the configured backend key.
 | --- | --- |
 | [app/page.tsx](app/page.tsx) | `/`: published articles ordered by insertion time, newest first, with attributed source excerpts |
 | [components/article-browser.tsx](components/article-browser.tsx) | Searchable, filtered, paginated, and day-grouped homepage news stream |
-| [components/article-image.tsx](components/article-image.tsx) | Publisher-hosted article image with placeholder and broken-image fallback |
+| [components/article-image.tsx](components/article-image.tsx) | Publisher-hosted article image with loading shimmer, branded/hidden fallbacks, and small-image filtering |
+| [lib/article-images.mjs](lib/article-images.mjs) | Tested image URL checks, featured-story choice, minimum width, and placeholder initial |
 | [components/briefing-freshness.tsx](components/briefing-freshness.tsx) | Browser-local visit tracking, freshness banner, and new-story badges |
 | [components/trending-news.tsx](components/trending-news.tsx) | Interactive main trend, momentum graph, secondary trends, evidence, and low-activity state |
 | [app/saved/page.tsx](app/saved/page.tsx) | `/saved`: browser-local reading list and empty state |
@@ -554,6 +571,21 @@ npx tsc --noEmit
 
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
+
+**Recorded local verification on 26 October 2026 (image display improvements,
+`image-improvements` branch):**
+
+- Added image-first featured selection, branded and text-only fallbacks, small-image
+  filtering, loading shimmer and fade-in, and images in Continue exploring, trend
+  evidence, and saved stories.
+- All 104 offline tests (21 reader tests, including new image-helper and saved-image
+  tests), lint, TypeScript for project files, `git diff --check`, and the production
+  build passed.
+- Headless Chrome screenshots against the local site covered Top stories in dark
+  desktop and light 390px mobile, trend evidence, and an article page with Continue
+  exploring. Real publisher images loaded and faded in; branded placeholders showed
+  publisher initials; no layout overflowed horizontally. Saved stories were covered
+  by unit tests only. No database write, commit, or deployment was performed.
 
 **Recorded local verification on 26 October 2026 (article images, `News_image` branch):**
 

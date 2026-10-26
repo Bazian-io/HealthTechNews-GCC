@@ -37,6 +37,7 @@ type DiscoveryArticle = Pick<
   | "country"
   | "category"
   | "original_url"
+  | "image_url"
   | "published_at"
 >;
 
@@ -112,7 +113,7 @@ async function getDiscoveryArticles(currentArticle: Article) {
   const supabase = await createClient();
   const discoveryResult = await supabase
     .from("articles")
-    .select("id, slug, title, summary, source_name, source_description, country, category, original_url, published_at")
+    .select("id, slug, title, summary, source_name, source_description, country, category, original_url, image_url, published_at")
     .eq("status", "published")
     .order("created_at", { ascending: false })
     .limit(13)
@@ -398,7 +399,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                   sizes="(min-width: 768px) 48rem, 100vw"
                   className="aspect-[16/9] w-full"
                   eager
-                  hideWhenMissing
+                  fallback="hide"
                   caption={article.source_name && `Image: ${article.source_name}`}
                 />
               </div>
@@ -485,6 +486,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                       key={discoveryArticle.id}
                       className="flex min-w-0 flex-col rounded-lg border border-border bg-card p-6 shadow-panel transition-shadow hover:shadow-panel-hover"
                     >
+                      <ArticleImage
+                        src={discoveryArticle.image_url}
+                        sizes="(min-width: 768px) 18rem, 100vw"
+                        className="mb-5 aspect-[16/9] w-full"
+                        publisher={discoveryArticle.source_name}
+                      />
                       <p className="editorial-kicker">
                         {getDiscoveryLabel(article, discoveryArticle)}
                       </p>

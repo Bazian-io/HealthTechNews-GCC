@@ -56,6 +56,21 @@ test("parses valid stories, orders newest first, and removes duplicates", () => 
   assert.equal(parsed[1].title, "Newer copy");
 });
 
+test("keeps safe image addresses and drops unsafe or missing ones", () => {
+  const savedAt = "2026-10-22T08:00:00.000Z";
+  const image = "https://cdn.example.com/lead.jpg";
+  const [withImage] = toggleSavedStory([], story("image", { image_url: image }), savedAt);
+  assert.equal(withImage.image_url, image);
+
+  const parsed = parseSavedStories(JSON.stringify([
+    { ...story("older"), saved_at: savedAt },
+    { ...story("unsafe"), image_url: "javascript:alert(1)", saved_at: savedAt },
+    { ...story("http"), image_url: "http://cdn.example.com/lead.jpg", saved_at: savedAt },
+  ]));
+  assert.equal(parsed.length, 3);
+  for (const item of parsed) assert.equal(item.image_url, null);
+});
+
 test("ignores malformed entries and unsafe URLs", () => {
   const valid = { ...story("valid"), saved_at: "2026-10-22T08:00:00.000Z" };
   const parsed = parseSavedStories(JSON.stringify([

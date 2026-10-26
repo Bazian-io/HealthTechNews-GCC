@@ -12,6 +12,10 @@ import {
   TrendingNews,
   type TrendingNewsAnalysis,
 } from "@/components/trending-news";
+import {
+  FEATURED_CANDIDATES,
+  pickFeaturedIndex,
+} from "@/lib/article-images.mjs";
 import { analyzeTrendingNews } from "@/lib/trending-news.mjs";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
@@ -133,8 +137,12 @@ function ArticleExcerpt({ article }: { article: Article }) {
 
 async function HomeArticles() {
   const { articles, hasError } = await getPublishedArticles();
-  const featuredArticle = articles[0];
-  const secondaryArticles = articles.slice(1, 4);
+  const topArticles = articles.slice(0, FEATURED_CANDIDATES);
+  const featuredIndex = pickFeaturedIndex(topArticles);
+  const featuredArticle = topArticles[featuredIndex];
+  const secondaryArticles = topArticles.filter(
+    (_, index) => index !== featuredIndex,
+  );
   const briefingTime = new Date().toISOString();
   const trendingAnalysis = analyzeTrendingNews(
     articles,
@@ -218,6 +226,8 @@ async function HomeArticles() {
                 sizes="(min-width: 1024px) 40rem, 100vw"
                 className="aspect-[16/9] w-full"
                 eager
+                publisher={featuredArticle.source_name}
+                placeholderSize="lg"
               />
               <div className="flex flex-wrap items-center gap-2">
                 <p className="editorial-kicker editorial-accent">
@@ -280,6 +290,7 @@ async function HomeArticles() {
                       src={article.image_url}
                       sizes="6rem"
                       className="aspect-square w-24 shrink-0 self-start"
+                      publisher={article.source_name}
                     />
                   </div>
                   <div className="flex items-center justify-between gap-3">

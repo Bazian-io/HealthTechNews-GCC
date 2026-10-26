@@ -4,6 +4,7 @@ import { ArticleImage } from "@/components/article-image";
 import { ArticleNewBadge } from "@/components/briefing-freshness";
 import { SaveStoryButton } from "@/components/saved-stories";
 import { getArticleDayGroup } from "@/lib/article-freshness.mjs";
+import { FEATURED_CANDIDATES } from "@/lib/article-images.mjs";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -131,7 +132,10 @@ export function ArticleBrowser({
 
   const normalizedSearch = search.trim().toLocaleLowerCase();
   const hasActiveFilters = Boolean(normalizedSearch || country || category);
-  const articlesToBrowse = hasActiveFilters ? articles : articles.slice(4);
+  // Without filters, skip the stories already shown in Top stories.
+  const articlesToBrowse = hasActiveFilters
+    ? articles
+    : articles.slice(FEATURED_CANDIDATES);
   const matchingArticles = articlesToBrowse.filter((article) => {
     const searchableText = [
       article.title,
@@ -308,6 +312,7 @@ export function ArticleBrowser({
                           src={article.image_url}
                           sizes="(min-width: 640px) 8rem, 6rem"
                           className="aspect-[4/3] w-24 shrink-0 self-start sm:w-32"
+                          fallback="hide"
                         />
                         <div className="min-w-0 flex-1 space-y-2">
                           <div className="flex flex-wrap items-center gap-2">

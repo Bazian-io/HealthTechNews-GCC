@@ -1,5 +1,6 @@
 "use client";
 
+import { ArticleImage } from "@/components/article-image";
 import { Button } from "@/components/ui/button";
 import {
   parseSavedStories,
@@ -29,6 +30,7 @@ export type SaveableStory = {
   source_name: string | null;
   source_description: string | null;
   original_url: string;
+  image_url: string | null;
   country: string | null;
   category: string | null;
   published_at: string | null;
@@ -241,58 +243,66 @@ function SavedStoryItem({ story }: { story: SavedStory }) {
   return (
     <li className="rounded-lg border border-border bg-card p-6 shadow-panel sm:p-8">
       <article className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-8">
-        <div className="min-w-0">
-          {savedDate && (
-            <p className="editorial-kicker editorial-accent">
-              Saved {savedDate}
-            </p>
-          )}
-          <h2 className="mt-3 break-words font-editorial text-2xl font-medium leading-snug tracking-tight">
-            {story.slug ? (
-              <Link
-                href={`/news/${story.slug}`}
-                className="underline-offset-4 transition-colors hover:text-primary hover:underline"
-              >
-                {story.title}
-              </Link>
-            ) : (
-              story.title
-            )}
-          </h2>
-          {metadata && (
-            <p className="mt-3 text-xs font-medium leading-5 text-muted-foreground">
-              {metadata}
-            </p>
-          )}
-          {excerpt && (
-            <div className="mt-4">
-              {!story.summary && (
-                <p className="text-[0.6875rem] font-semibold uppercase leading-5 tracking-[0.12em] text-muted-foreground">
-                  Publisher excerpt
-                </p>
-              )}
-              <p className="reading-copy mt-2 line-clamp-3">
-                {excerpt}
+        <div className="flex min-w-0 gap-5">
+          <ArticleImage
+            src={story.image_url}
+            sizes="(min-width: 640px) 10rem, 6rem"
+            className="aspect-[4/3] w-24 shrink-0 self-start sm:w-40"
+            fallback="hide"
+          />
+          <div className="min-w-0 flex-1">
+            {savedDate && (
+              <p className="editorial-kicker editorial-accent">
+                Saved {savedDate}
               </p>
-            </div>
-          )}
-          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-border pt-5 text-sm">
-            {story.slug && (
-              <Link
-                href={`/news/${story.slug}`}
-                className="font-semibold text-primary underline-offset-4 hover:underline"
-              >
-                Read article
-              </Link>
             )}
-            <a
-              href={story.original_url}
-              target="_blank"
-              rel="noreferrer"
-              className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-            >
-              Original source ↗
-            </a>
+            <h2 className="mt-3 break-words font-editorial text-2xl font-medium leading-snug tracking-tight">
+              {story.slug ? (
+                <Link
+                  href={`/news/${story.slug}`}
+                  className="underline-offset-4 transition-colors hover:text-primary hover:underline"
+                >
+                  {story.title}
+                </Link>
+              ) : (
+                story.title
+              )}
+            </h2>
+            {metadata && (
+              <p className="mt-3 text-xs font-medium leading-5 text-muted-foreground">
+                {metadata}
+              </p>
+            )}
+            {excerpt && (
+              <div className="mt-4">
+                {!story.summary && (
+                  <p className="text-[0.6875rem] font-semibold uppercase leading-5 tracking-[0.12em] text-muted-foreground">
+                    Publisher excerpt
+                  </p>
+                )}
+                <p className="reading-copy mt-2 line-clamp-3">
+                  {excerpt}
+                </p>
+              </div>
+            )}
+            <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-border pt-5 text-sm">
+              {story.slug && (
+                <Link
+                  href={`/news/${story.slug}`}
+                  className="font-semibold text-primary underline-offset-4 hover:underline"
+                >
+                  Read article
+                </Link>
+              )}
+              <a
+                href={story.original_url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                Original source ↗
+              </a>
+            </div>
           </div>
         </div>
         <Button
