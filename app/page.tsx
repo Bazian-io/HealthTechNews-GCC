@@ -7,6 +7,11 @@ import {
 import { ProductFooter } from "@/components/product-footer";
 import { ProductHeader } from "@/components/product-header";
 import { SaveStoryButton } from "@/components/saved-stories";
+import {
+  TrendingNews,
+  type TrendingNewsAnalysis,
+} from "@/components/trending-news";
+import { analyzeTrendingNews } from "@/lib/trending-news.mjs";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -129,6 +134,10 @@ async function HomeArticles() {
   const featuredArticle = articles[0];
   const secondaryArticles = articles.slice(1, 4);
   const briefingTime = new Date().toISOString();
+  const trendingAnalysis = analyzeTrendingNews(
+    articles,
+    Date.parse(briefingTime),
+  ) as TrendingNewsAnalysis;
 
   if (hasError) {
     return (
@@ -172,6 +181,7 @@ async function HomeArticles() {
     <BriefingFreshnessProvider
       articleTimestamps={articles.map((article) => article.created_at)}
     >
+      <TrendingNews analysis={trendingAnalysis} />
       <BriefingFreshnessBanner />
       <section
         id="top-stories"
@@ -282,6 +292,7 @@ function HomeArticlesLoading() {
   return (
     <div role="status" aria-live="polite" aria-busy="true">
       <span className="sr-only">Loading the latest articles</span>
+      <div className="mt-10 h-96 animate-pulse rounded-2xl bg-muted motion-reduce:animate-none" aria-hidden="true" />
       <div className="mt-10 h-32 animate-pulse rounded-xl bg-muted motion-reduce:animate-none" aria-hidden="true" />
       <section className="py-10 sm:py-14" aria-hidden="true">
         <div className="mb-6 space-y-3">

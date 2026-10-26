@@ -25,6 +25,9 @@ The homepage keeps the previous visit timestamp in browser storage, highlights n
 articles, and groups the news stream by the day each article was added.
 Readers can also save up to 100 stories in browser storage and manage them at
 `/saved`; this reading list is device-local and does not write to Supabase.
+The homepage analyzes the latest 72 hours of published coverage into evidence-
+backed, multi-publisher trends and shows an honest low-activity state when no
+topic meets that threshold.
 The optional Claude relevance checker is read-only and is not
 invoked by collection. Search/relevance quality still needs evaluation; collection
 alone does not establish relevance. The review/publication workflow is still planned.
@@ -58,6 +61,9 @@ alone does not establish relevance. The review/publication workflow is still pla
 - Add new schema migrations under `supabase/migrations/`; do not rewrite applied
   history or reset the remote database as part of routine setup.
 - Keep website query errors distinct from valid empty results and missing articles.
+- Treat the 72-hour trend labels as transparent, rule-based briefing signals—not
+  stored classifications or claims about the whole internet. A trend requires at
+  least two related published stories from two distinct named publishers.
 
 ## Verification and operational notes
 

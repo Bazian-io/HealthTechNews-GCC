@@ -9,7 +9,7 @@ The goal is to have fresh, relevant news ready on the website each morning.
 
 ## Current milestone
 
-**As of 22 October 2026:** FreeNewsAPI.ai is the primary news source for this
+**As of 25 October 2026:** FreeNewsAPI.ai is the primary news source for this
 initial version. Its collector automatically publishes new articles that pass a
 basic GCC HealthTech keyword filter, as explicitly requested. RSS and GDELT remain
 available and save drafts only. The public website now uses an editorial briefing
@@ -19,12 +19,13 @@ reports newly added stories, marks them as new, and groups the stream into Today
 Yesterday, and Earlier. Article pages connect country and topic labels back to
 filtered browsing and show additional published coverage. The public header offers
 light, dark, and system themes, plus a browser-local saved-stories reading list,
-with product-specific browser and social sharing artwork. The freshness and saved-
-story UI remain local until their production deployment completes.
+with product-specific browser and social sharing artwork. The homepage now opens
+with an evidence-backed analysis of trends in the latest 72 hours. These reader UI
+changes remain local until their production deployment completes.
 
 | Working now | Still to build |
 | --- | --- |
-| Editorial homepage, daily freshness briefing, searchable news stream, saved stories, and article discovery links | Validate relevance accuracy and store verdicts |
+| Editorial homepage, 72-hour trend analysis, daily freshness briefing, searchable news stream, saved stories, and article discovery links | Validate relevance accuracy and store verdicts |
 | Product favicon, social preview, metadata, and theme control | Summarization and classification |
 | Database error messages and article-not-found page | Review/publication workflow |
 | Unique slugs; published articles must have a nonblank slug | Persistent collection run history and alerting |
@@ -205,6 +206,25 @@ The list stores a validated article snapshot in that browser's local storage and
 is capped at 100 stories. It does not require an account, query a private API, or
 write to Supabase. It syncs between open tabs, but not between devices or browsers;
 clearing browser data also clears the list.
+
+### Trending in the last 72 hours
+
+The homepage groups recently added published articles into transparent HealthTech
+themes using their headlines and stored summary or publisher excerpt. It ranks
+qualifying themes by distinct publisher breadth, story count, and recent momentum.
+A trend requires at least two related stories from two named publishers, so one
+publisher repeating a subject cannot create a trend by itself.
+
+The leading trend shows a six-period momentum graph, a plain-language explanation,
+story and publisher counts, and the exact published articles used as evidence. Up
+to two other trends appear under “Also trending”; selecting one promotes it to the
+main position and updates the evidence. Momentum describes when stories were added
+to this briefing, not overall GCC market activity or popularity across the web.
+
+This is free, deterministic analysis performed from existing page data. It does
+not call AI, write classifications to Supabase, or infer missing countries. When
+the 72-hour window lacks enough multi-publisher evidence, the section says so and
+shows the latest developments instead of inventing a trend.
 
 ## Run the RSS collector
 
@@ -451,6 +471,7 @@ and the configured backend key.
 | [app/page.tsx](app/page.tsx) | `/`: published articles ordered by insertion time, newest first, with attributed source excerpts |
 | [components/article-browser.tsx](components/article-browser.tsx) | Searchable, filtered, paginated, and day-grouped homepage news stream |
 | [components/briefing-freshness.tsx](components/briefing-freshness.tsx) | Browser-local visit tracking, freshness banner, and new-story badges |
+| [components/trending-news.tsx](components/trending-news.tsx) | Interactive main trend, momentum graph, secondary trends, evidence, and low-activity state |
 | [app/saved/page.tsx](app/saved/page.tsx) | `/saved`: browser-local reading list and empty state |
 | [components/saved-stories.tsx](components/saved-stories.tsx) | Saved-story provider, controls, header count, and reading-list UI |
 | [app/news/[slug]/page.tsx](app/news/[slug]/page.tsx) | `/news/[slug]`: published article details and original source link |
@@ -464,6 +485,7 @@ and the configured backend key.
 | [lib/free-news-cron.mjs](lib/free-news-cron.mjs) | Cron authorization, collector invocation, and safe HTTP result handling |
 | [lib/article-freshness.mjs](lib/article-freshness.mjs) | Tested timestamp comparison, GCC day grouping, and safe visit persistence |
 | [lib/saved-stories.mjs](lib/saved-stories.mjs) | Saved-story validation, limits, toggling, and safe browser persistence |
+| [lib/trending-news.mjs](lib/trending-news.mjs) | Tested 72-hour topic grouping, multi-publisher threshold, ranking, and momentum analysis |
 | [app/api/cron/collect-free-news/route.ts](app/api/cron/collect-free-news/route.ts) | Protected Vercel Cron route for daily FreeNewsAPI.ai collection |
 | [scripts/collect-free-news.mjs](scripts/collect-free-news.mjs) | FreeNewsAPI.ai collection/publication command and credential-free dry run |
 | [scripts/collect-news.mjs](scripts/collect-news.mjs) | Terminal command, environment loading, result output |
@@ -477,6 +499,7 @@ and the configured backend key.
 | [tests/free-news-cron.test.mjs](tests/free-news-cron.test.mjs) | Offline cron authentication, execution, and error-response tests |
 | [tests/article-freshness.test.mjs](tests/article-freshness.test.mjs) | Offline day grouping, new-story counting, and browser-storage fallback tests |
 | [tests/saved-stories.test.mjs](tests/saved-stories.test.mjs) | Offline saved-story validation, limits, toggling, and storage fallback tests |
+| [tests/trending-news.test.mjs](tests/trending-news.test.mjs) | Offline trend grouping, evidence threshold, ranking, momentum, and failure-boundary tests |
 | [tests/relevance.test.mjs](tests/relevance.test.mjs) | Relevance tests using a simulated Claude client; no network access |
 | [tests/fixtures/relevance-gold.json](tests/fixtures/relevance-gold.json) | Hand-checked relevance verdicts for the collected drafts |
 
@@ -506,6 +529,18 @@ npx tsc --noEmit
 
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
+
+**Recorded local verification on 25 October 2026 (72-hour trend analysis):**
+
+- Added the evidence-backed main trend, interactive “Also trending” choices,
+  momentum graph, exact supporting stories, and an honest low-activity state.
+- All 97 offline tests passed, along with lint, TypeScript, whitespace checks,
+  and the Next.js 16.4 webpack production build.
+- Browser checks covered the real low-activity state from two unrelated recent
+  articles and a temporary populated fixture on desktop and 390px mobile layouts.
+  Selecting a secondary trend updated both the main analysis and its evidence;
+  neither layout overflowed horizontally. No database write or deployment was
+  performed.
 
 **Recorded local verification on 22 October 2026 (saved stories):**
 
