@@ -1,3 +1,4 @@
+import { ArticleImage } from "@/components/article-image";
 import { ProductFooter } from "@/components/product-footer";
 import { ProductHeader } from "@/components/product-header";
 import { SaveStoryButton } from "@/components/saved-stories";
@@ -21,6 +22,7 @@ type Article = {
   country: string | null;
   category: string | null;
   original_url: string;
+  image_url: string | null;
   published_at: string | null;
 };
 
@@ -91,7 +93,7 @@ const getPublishedArticleBySlug = cache(async (slug: string) => {
   const supabase = await createClient();
   const articleResult = await supabase
     .from("articles")
-    .select("id, slug, title, summary, source_name, source_description, country, category, original_url, published_at")
+    .select("id, slug, title, summary, source_name, source_description, country, category, original_url, image_url, published_at")
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle<Article>();
@@ -389,6 +391,18 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             <div className="mt-6">
               <SaveStoryButton story={article} variant="text" />
             </div>
+            {article.image_url && (
+              <div className="mt-8">
+                <ArticleImage
+                  src={article.image_url}
+                  sizes="(min-width: 768px) 48rem, 100vw"
+                  className="aspect-[16/9] w-full"
+                  eager
+                  hideWhenMissing
+                  caption={article.source_name && `Image: ${article.source_name}`}
+                />
+              </div>
+            )}
           </header>
 
           <section

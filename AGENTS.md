@@ -58,6 +58,8 @@ alone does not establish relevance. The review/publication workflow is still pla
   valid, non-future dates with `date_source` of `jsonld` or `meta` are stored.
   Missing provenance stays NULL. Its keyword filter is approximate, not a
   verified relevance verdict. Public UI labels source descriptions as excerpts.
+  Its `image` field is stored as `image_url` only for public HTTPS addresses;
+  images stay publisher-hosted (never downloaded or rehosted) beside attribution.
 - Add new schema migrations under `supabase/migrations/`; do not rewrite applied
   history or reset the remote database as part of routine setup.
 - Keep website query errors distinct from valid empty results and missing articles.

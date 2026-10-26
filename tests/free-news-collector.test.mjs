@@ -94,6 +94,17 @@ test("missing, inferred, impossible, and future source dates stay NULL", () => {
   assert.equal(createFreeNewsArticle(fixture[1], collectedAt).source_description, null);
 });
 
+test("keeps only public HTTPS publisher image addresses", () => {
+  const image = "https://cdn.example.com/photos/lead.jpg?w=1200";
+  assert.equal(createFreeNewsArticle({ ...fixture[0], image }, collectedAt).image_url, image);
+  assert.equal(createFreeNewsArticle({ ...fixture[0], image: `${image}#top` }, collectedAt).image_url, image);
+  for (const invalid of [
+    undefined, null, "", 42, "not a url", "http://cdn.example.com/lead.jpg", "data:image/png;base64,AAAA",
+    "javascript:alert(1)", "https://user:pass@cdn.example.com/a.jpg", "https://127.0.0.1/a.jpg",
+    "https://localhost/a.jpg", "https://cdn.example.com:8443/a.jpg", `https://cdn.example.com/${"a".repeat(2_000)}`,
+  ]) assert.equal(createFreeNewsArticle({ ...fixture[0], image: invalid }, collectedAt).image_url, null);
+});
+
 test("the basic relevance filter requires GCC story text and healthcare technology", () => {
   for (const title of ["Dubai expands telemedicine", "Kuwait hospital adopts artificial intelligence", "Bahrain launches healthtech startup", "Oman launches digital health platform", "Qatar hospital introduces robotics", "Saudi Arabia funds medical device research"]) {
     assert(matchesGccHealthTech({ title }));

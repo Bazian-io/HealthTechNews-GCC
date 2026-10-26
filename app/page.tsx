@@ -1,4 +1,5 @@
 import { ArticleBrowser } from "@/components/article-browser";
+import { ArticleImage } from "@/components/article-image";
 import {
   ArticleNewBadge,
   BriefingFreshnessBanner,
@@ -29,6 +30,7 @@ type Article = {
   source_name: string | null;
   source_description: string | null;
   original_url: string;
+  image_url: string | null;
   country: string | null;
   category: string | null;
   published_at: string | null;
@@ -42,7 +44,7 @@ async function getPublishedArticles(): Promise<{
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("articles")
-    .select("id, slug, title, summary, source_name, source_description, original_url, country, category, published_at, created_at")
+    .select("id, slug, title, summary, source_name, source_description, original_url, image_url, country, category, published_at, created_at")
     .eq("status", "published")
     // Recently added stories stay visible even when their source date is unknown.
     .order("created_at", { ascending: false });
@@ -211,6 +213,12 @@ async function HomeArticles() {
         >
           <article className="featured-story-card flex flex-col justify-between gap-8 rounded-lg border border-border p-6 shadow-panel transition-shadow hover:shadow-panel-hover sm:p-8">
             <div className="space-y-5">
+              <ArticleImage
+                src={featuredArticle.image_url}
+                sizes="(min-width: 1024px) 40rem, 100vw"
+                className="aspect-[16/9] w-full"
+                eager
+              />
               <div className="flex flex-wrap items-center gap-2">
                 <p className="editorial-kicker editorial-accent">
                   Featured
@@ -255,16 +263,25 @@ async function HomeArticles() {
                   key={article.id}
                   className="space-y-3 p-5 transition-colors hover:bg-muted/50 sm:p-6"
                 >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <ArticleNewBadge createdAt={article.created_at} />
-                    <ArticleMetadata article={article} />
-                  </div>
-                  <h3>
-                    <ArticleHeadline
-                      article={article}
-                      className="break-words font-editorial text-[1.375rem] font-medium leading-snug tracking-tight transition-colors hover:text-primary"
+                  <div className="flex gap-4">
+                    <div className="min-w-0 flex-1 space-y-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <ArticleNewBadge createdAt={article.created_at} />
+                        <ArticleMetadata article={article} />
+                      </div>
+                      <h3>
+                        <ArticleHeadline
+                          article={article}
+                          className="break-words font-editorial text-[1.375rem] font-medium leading-snug tracking-tight transition-colors hover:text-primary"
+                        />
+                      </h3>
+                    </div>
+                    <ArticleImage
+                      src={article.image_url}
+                      sizes="6rem"
+                      className="aspect-[4/3] w-24 shrink-0"
                     />
-                  </h3>
+                  </div>
                   <div className="flex items-center justify-between gap-3">
                     <a
                       href={article.original_url}

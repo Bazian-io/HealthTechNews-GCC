@@ -83,8 +83,8 @@ separate, optional relevance command. Vercel supplies
 
 ### Database setup
 
-Migration files live in [supabase/migrations](supabase/migrations). The nine
-migrations listed below were applied to the remote project during this milestone.
+Migration files live in [supabase/migrations](supabase/migrations). The ten
+migrations listed below have been applied to the remote project.
 For a new checkout, verify the linked project's migration history before applying
 anything; do not reset or reseed the existing remote database.
 
@@ -131,6 +131,11 @@ without deploying code. The updated excerpt display is local until deployed.
   It can miss relevant stories or admit false positives; no paid AI is invoked.
 - Saves new matches with `status = 'published'`, stable slugs, canonical URLs,
   publisher hostname, source description, and collection timestamp.
+- Saves the API's `image` field in `image_url` only when it is a public `https://`
+  address; other values stay NULL. The image is never downloaded or rehosted:
+  readers' browsers load it from the publisher, without sending a referrer, next
+  to the publisher credit and original-source link. Missing or broken images show
+  a neutral placeholder in news lists and are hidden on article pages.
 - Leaves `country`, `category`, and editorial `summary` NULL. Source descriptions
   remain separate and are labelled “Publisher excerpt” in the UI. Dates are kept
   only with `date_source = jsonld` or `meta` and a valid, non-future timestamp;
@@ -443,6 +448,7 @@ The application has one table: **`public.articles`**.
 | `id`, `title`, `original_url` | Article identity, headline, and unique source URL |
 | `slug`, `status` | Website URL segment and publication state; status defaults to `draft` |
 | `source_name`, `source_description` | Publisher name/hostname and its description, when supplied |
+| `image_url` | Publisher-hosted lead image address (FreeNewsAPI.ai only), when supplied |
 | `summary`, `country`, `category` | Editorial/processing fields; collector leaves these empty |
 | `published_at` | Source publication date, when valid |
 | `collected_at` | When the collector first saved the article |
@@ -476,6 +482,7 @@ not a fixed list enforced by a database constraint.
 | `20260915181933_articles_require_published_slug.sql` | Reject published articles with null or blank slugs |
 | `20260916173923_articles_add_collection_metadata.sql` | Add publisher and collection metadata |
 | `20260916174609_articles_grant_collector_access.sql` | Grant backend collector SELECT/INSERT access |
+| `20261026120000_articles_add_image_url.sql` | Add nullable, HTTPS-only publisher `image_url` (applied remotely 26 October 2026) |
 
 Add a new migration for future schema changes; preserve already applied files.
 If collector saves fail with code `42501`, check the collector grant migration
@@ -487,6 +494,7 @@ and the configured backend key.
 | --- | --- |
 | [app/page.tsx](app/page.tsx) | `/`: published articles ordered by insertion time, newest first, with attributed source excerpts |
 | [components/article-browser.tsx](components/article-browser.tsx) | Searchable, filtered, paginated, and day-grouped homepage news stream |
+| [components/article-image.tsx](components/article-image.tsx) | Publisher-hosted article image with placeholder and broken-image fallback |
 | [components/briefing-freshness.tsx](components/briefing-freshness.tsx) | Browser-local visit tracking, freshness banner, and new-story badges |
 | [components/trending-news.tsx](components/trending-news.tsx) | Interactive main trend, momentum graph, secondary trends, evidence, and low-activity state |
 | [app/saved/page.tsx](app/saved/page.tsx) | `/saved`: browser-local reading list and empty state |
@@ -546,6 +554,23 @@ npx tsc --noEmit
 
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
+
+**Recorded local verification on 26 October 2026 (article images, `News_image` branch):**
+
+- A read-only sample of 30 FreeNewsAPI.ai GCC HealthTech results returned an
+  image address for 26. The collector now keeps HTTPS image addresses; the
+  homepage featured story, Top stories, news stream, and article pages show them.
+- All 99 offline tests (including a new image-validation test), full-project lint,
+  TypeScript for project files, `git diff --check`, and the production build passed.
+  iCloud-created duplicate files in the ignored `.next/dev/types` cache were removed
+  because they broke type checking.
+- The `image_url` migration was then applied to the linked Supabase project with
+  `npx supabase db push`; it was the only pending migration. A publishable-key
+  read of `image_url` succeeded: 45 published rows, none with an image yet,
+  because articles collected earlier keep NULL images.
+- **Not yet done:** nothing has been committed or deployed, and no collection has
+  run with the new code. The deployed site does not request `image_url`, so it is
+  unaffected by the new nullable column.
 
 **Recorded local verification on 26 October 2026 (visual refinement):**
 

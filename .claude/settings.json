@@ -33,7 +33,17 @@
       "Bash(node --input-type=module -e ' *)",
       "Bash(node --test tests/relevance.test.mjs)",
       "Bash(sed -n '/^\\\\[/,$p')",
-      "Bash(node \"/private/tmp/claude-501/-Users-bazianprudens-Library-Mobile-Documents-com-apple-CloudDocs-My-Files-Projects-AI-gcc-healthtech-news/2fb68751-633f-4fc0-bb77-7b08fc8cb02d/scratchpad/rules-experiment.mjs\")"
+      "Bash(node \"/private/tmp/claude-501/-Users-bazianprudens-Library-Mobile-Documents-com-apple-CloudDocs-My-Files-Projects-AI-gcc-healthtech-news/2fb68751-633f-4fc0-bb77-7b08fc8cb02d/scratchpad/rules-experiment.mjs\")",
+      "Bash(git branch *)",
+      "Bash(curl -s --max-time 15 \"https://freenewsapi.ai/v1/search?q=digital%20health%20Saudi&lang=en&size=2&full_text=false\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); r=d.get\\('results',[]\\); print\\('keys:', sorted\\(r[0].keys\\(\\)\\) if r else d\\); [print\\({k:v for k,v in x.items\\(\\) if any\\(s in k.lower\\(\\) for s in \\('image','thumb','title','url','desc'\\)\\)}\\) for x in r]\")",
+      "Bash(curl -sL --max-time 15 https://freenewsapi.ai/legal/terms)",
+      "Bash(python3 -c ' *)",
+      "Bash(grep -n -B2 -A25 \"^## \\\\`unoptimized\\\\`\\\\|^#### \\\\`unoptimized\\\\`\\\\|^### \\\\`unoptimized\\\\`\\\\|^#### unoptimized\\\\|unoptimized\\\\`$\" node_modules/next/dist/docs/01-app/03-api-reference/02-components/image.md)",
+      "Bash(grep -n \"^#### \\\\`\\\\|deprecated\" node_modules/next/dist/docs/01-app/03-api-reference/02-components/image.md)",
+      "Bash(python3 -)",
+      "Bash(node --env-file=.env.local -e ' *)",
+      "Bash(node --env-file-if-exists=.env --env-file-if-exists=.env.local -e ' *)"
     ]
   }
 }

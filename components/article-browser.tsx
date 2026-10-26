@@ -1,5 +1,6 @@
 "use client";
 
+import { ArticleImage } from "@/components/article-image";
 import { ArticleNewBadge } from "@/components/briefing-freshness";
 import { SaveStoryButton } from "@/components/saved-stories";
 import { getArticleDayGroup } from "@/lib/article-freshness.mjs";
@@ -28,6 +29,7 @@ type BrowseArticle = {
   source_name: string | null;
   source_description: string | null;
   original_url: string;
+  image_url: string | null;
   country: string | null;
   category: string | null;
   published_at: string | null;
@@ -301,29 +303,36 @@ export function ArticleBrowser({
                       key={article.id}
                       className="grid gap-4 px-3 py-6 transition-colors hover:bg-card sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8 sm:px-4"
                     >
-                      <div className="space-y-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <ArticleNewBadge createdAt={article.created_at} />
-                          {metadata && (
-                            <p className="text-xs font-medium leading-5 text-muted-foreground">
-                              {metadata}
-                            </p>
-                          )}
+                      <div className="flex gap-4 sm:gap-5">
+                        <ArticleImage
+                          src={article.image_url}
+                          sizes="(min-width: 640px) 8rem, 6rem"
+                          className="aspect-[4/3] w-24 shrink-0 sm:w-32"
+                        />
+                        <div className="min-w-0 flex-1 space-y-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <ArticleNewBadge createdAt={article.created_at} />
+                            {metadata && (
+                              <p className="text-xs font-medium leading-5 text-muted-foreground">
+                                {metadata}
+                              </p>
+                            )}
+                          </div>
+                          <h4>
+                            {article.slug?.trim() ? (
+                              <Link
+                                href={`/news/${article.slug}`}
+                                className="break-words font-editorial text-[1.375rem] font-medium leading-snug underline-offset-4 transition-colors hover:text-primary hover:underline"
+                              >
+                                {article.title}
+                              </Link>
+                            ) : (
+                              <span className="break-words font-editorial text-[1.375rem] font-medium leading-snug">
+                                {article.title}
+                              </span>
+                            )}
+                          </h4>
                         </div>
-                        <h4>
-                          {article.slug?.trim() ? (
-                            <Link
-                              href={`/news/${article.slug}`}
-                              className="break-words font-editorial text-[1.375rem] font-medium leading-snug underline-offset-4 transition-colors hover:text-primary hover:underline"
-                            >
-                              {article.title}
-                            </Link>
-                          ) : (
-                            <span className="break-words font-editorial text-[1.375rem] font-medium leading-snug">
-                              {article.title}
-                            </span>
-                          )}
-                        </h4>
                       </div>
                       <div className="flex items-center gap-3 sm:justify-end">
                         <a
