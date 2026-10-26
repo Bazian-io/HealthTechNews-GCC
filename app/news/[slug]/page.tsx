@@ -406,7 +406,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 {excerpt}
               </p>
             ) : (
-              <p className="mt-4 leading-7 text-muted-foreground">
+              <p className="reading-copy mt-4">
                 No summary is available for this article. Visit the original
                 publisher to continue reading.
               </p>

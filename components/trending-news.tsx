@@ -63,6 +63,11 @@ function ArticleLink({ article }: { article: EvidenceArticle }) {
 
 function MomentumChart({ trend }: { trend: Trend }) {
   const maximum = Math.max(1, ...trend.chart_counts);
+  const highlightedIndex = trend.chart_counts.reduce(
+    (busiestIndex, count, index, counts) =>
+      count >= counts[busiestIndex] ? index : busiestIndex,
+    0,
+  );
   const chartSummary = trend.chart_counts
     .map((count, index) => `day ${index + 1}: ${count}`)
     .join(", ");
@@ -71,33 +76,51 @@ function MomentumChart({ trend }: { trend: Trend }) {
     <figure className="min-w-0 rounded-lg border border-border/80 bg-muted/35 p-4 sm:p-5" aria-labelledby="trend-chart-caption">
       <div className="flex items-start justify-between gap-4 text-xs">
         <span className="font-medium leading-5 text-muted-foreground">Related stories by day</span>
-        <span className="max-w-32 text-right font-medium leading-5 tabular-nums">
+        <span className="max-w-36 rounded-md border border-border bg-card/70 px-2.5 py-1.5 text-right font-medium leading-4 tabular-nums">
           {trend.latest_24h_count === trend.story_count
             ? "All activity arrived today"
             : `${trend.latest_24h_count} ${trend.latest_24h_count === 1 ? "story" : "stories"} in the latest 24h`}
         </span>
       </div>
       <div
-        className="chart-grid mt-5 flex h-32 items-end gap-2 border-b border-border px-1 sm:gap-3"
+        className="chart-grid mt-5 flex h-32 items-end gap-1.5 border-b border-border px-1 sm:gap-2"
         role="img"
         aria-label={`Related stories added each day over the past ${trend.chart_counts.length} days, oldest to newest: ${chartSummary}`}
       >
         {trend.chart_counts.map((count, index) => (
           <span
             key={index}
-            className={`block min-h-1 flex-1 rounded-t-sm ${count > 0 ? "bg-chart-1" : "bg-border"}`}
+            className={`block min-h-1 flex-1 rounded-t-md ${
+              count === 0
+                ? "bg-border"
+                : index === highlightedIndex
+                  ? "trend-bar-highlight"
+                  : "trend-bar"
+            }`}
             style={{ height: count > 0 ? `${Math.max(12, (count / maximum) * 100)}%` : "3%" }}
+            title={`${count} ${count === 1 ? "story" : "stories"}`}
             aria-hidden="true"
           />
         ))}
       </div>
-      <div className="mt-3 flex justify-between text-[0.6875rem] tabular-nums text-muted-foreground" aria-hidden="true">
-        <span>{TREND_WINDOW_DAYS} days ago</span>
-        <span>{Math.floor(TREND_WINDOW_DAYS / 2)} days ago</span>
-        <span>Now</span>
+      <div className="mt-3 grid grid-cols-7 gap-1.5 text-[0.6875rem] tabular-nums text-muted-foreground sm:gap-2" aria-hidden="true">
+        {trend.chart_counts.map((_, index) => (
+          <span
+            key={index}
+            className={`text-center ${
+              index !== 0 && index !== 3 && index !== trend.chart_counts.length - 1
+                ? "invisible sm:visible"
+                : ""
+            }`}
+          >
+            {index === trend.chart_counts.length - 1
+              ? "Now"
+              : `${TREND_WINDOW_DAYS - index}d`}
+          </span>
+        ))}
       </div>
       <figcaption id="trend-chart-caption" className="mt-4 text-xs leading-5 text-muted-foreground">
-        Each bar shows related stories added that day.
+        Each bar shows related stories added that day. Burgundy marks the busiest day.
       </figcaption>
     </figure>
   );
@@ -114,7 +137,7 @@ function QuietTrendState({ analysis }: { analysis: TrendingNewsAnalysis }) {
       <h3 className="mt-3 font-editorial text-3xl font-medium tracking-tight">
         No clear multi-source trend yet
       </h3>
-      <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+      <p className="reading-copy mt-3 max-w-2xl">
         {articleCount === 0
           ? "No new published stories were added during this window."
           : `${articleCount} ${articleCount === 1 ? "story was" : "stories were"} added, but no subject was covered by at least two publishers.`} We only label a subject as trending when the evidence is broad enough.
@@ -192,7 +215,7 @@ export function TrendingNews({ analysis }: { analysis: TrendingNewsAnalysis }) {
               <h3 className="font-editorial text-3xl font-medium leading-[1.15] tracking-tight sm:text-[2.125rem]">
                 {selectedTrend.headline}
               </h3>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-[0.9375rem]">
+              <p className="reading-copy mt-4 max-w-2xl">
                 {selectedTrend.analysis}
               </p>
               <p className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm tabular-nums">

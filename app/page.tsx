@@ -124,7 +124,7 @@ function ArticleExcerpt({ article }: { article: Article }) {
           Publisher excerpt
         </p>
       )}
-      <p className="text-[0.9375rem] leading-7 text-muted-foreground">{excerpt}</p>
+      <p className="reading-copy">{excerpt}</p>
     </div>
   );
 }
@@ -209,7 +209,7 @@ async function HomeArticles() {
               : "grid"
           }
         >
-          <article className="flex flex-col justify-between gap-8 rounded-lg border border-border bg-card p-6 shadow-panel transition-shadow hover:shadow-panel-hover sm:p-8">
+          <article className="featured-story-card flex flex-col justify-between gap-8 rounded-lg border border-border p-6 shadow-panel transition-shadow hover:shadow-panel-hover sm:p-8">
             <div className="space-y-5">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="editorial-kicker editorial-accent">

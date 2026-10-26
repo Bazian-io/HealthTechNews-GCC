@@ -160,8 +160,8 @@ export function SavedStoriesLink() {
       aria-label={ready ? `Saved stories, ${count}` : "Saved stories"}
       aria-current={isCurrentPage ? "page" : undefined}
       className={cn(
-        "inline-flex min-h-9 items-center gap-2 rounded-md border border-border bg-card px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-accent hover:text-primary sm:px-3",
-        isCurrentPage && "bg-accent text-primary",
+        "inline-flex min-h-9 items-center gap-2 rounded-md border border-border bg-background/60 px-2.5 text-sm font-medium text-muted-foreground shadow-sm transition-colors hover:border-primary/40 hover:bg-accent hover:text-primary sm:px-3",
+        isCurrentPage && "border-primary/40 bg-accent text-primary ring-1 ring-primary/10",
       )}
     >
       <Bookmark size={16} aria-hidden="true" />
@@ -271,7 +271,7 @@ function SavedStoryItem({ story }: { story: SavedStory }) {
                   Publisher excerpt
                 </p>
               )}
-              <p className="mt-1 line-clamp-3 text-sm leading-6 text-muted-foreground">
+              <p className="reading-copy mt-2 line-clamp-3">
                 {excerpt}
               </p>
             </div>

@@ -215,8 +215,12 @@ remains the primary accent; muted burgundy highlights selected editorial labels
 and evidence details. Neutral borders, subtle shadows, and consistent section
 spacing carry across the homepage, article pages, and saved stories. The original Geist and
 Newsreader fonts, content, section order, and reader functionality are preserved.
-Daily chart bars have faint guide lines, and controls retain visible keyboard
-focus indicators.
+Summaries and excerpts use a readable 16px treatment, while the featured story
+uses a faint warm surface and burgundy top rule to distinguish it from secondary
+coverage. Daily chart bars have faint guide lines, and controls retain visible
+keyboard focus indicators. The sticky header uses a subtly elevated surface and
+clearer navigation states. Weekly chart labels cover the full seven-day window,
+with burgundy identifying the busiest day and teal showing the remaining activity.
 
 ### Trending this week
 

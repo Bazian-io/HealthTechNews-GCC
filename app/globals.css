@@ -29,6 +29,7 @@
     --chart-4: 24 65% 58%;
     --chart-5: 154 35% 46%;
     --surface-hero: 42 30% 98%;
+    --surface-featured: 40 32% 98%;
     --editorial-accent: 350 34% 32%;
     --radius: 0.625rem;
     --shadow-panel: 0 1px 2px hsl(218 30% 18% / 0.04), 0 8px 24px hsl(218 30% 18% / 0.04);
@@ -46,7 +47,7 @@
     --secondary: 218 22% 18%;
     --secondary-foreground: 210 24% 94%;
     --muted: 218 22% 17%;
-    --muted-foreground: 215 15% 70%;
+    --muted-foreground: 215 15% 74%;
     --accent: 190 20% 19%;
     --accent-foreground: 172 40% 77%;
     --destructive: 0 70% 70%;
@@ -60,6 +61,7 @@
     --chart-4: 24 65% 64%;
     --chart-5: 154 35% 55%;
     --surface-hero: 218 24% 14%;
+    --surface-featured: 218 23% 15%;
     --editorial-accent: 350 38% 70%;
     --shadow-panel: 0 1px 2px hsl(220 40% 3% / 0.16), 0 6px 20px hsl(220 40% 3% / 0.12);
     --shadow-panel-hover: 0 2px 4px hsl(220 40% 3% / 0.2), 0 8px 24px hsl(220 40% 3% / 0.2);
@@ -104,6 +106,70 @@
 
   .surface-hero {
     background-color: hsl(var(--surface-hero));
+  }
+
+  .reading-copy {
+    @apply text-base leading-7 text-muted-foreground;
+  }
+
+  .featured-story-card {
+    position: relative;
+    overflow: hidden;
+    background-color: hsl(var(--surface-featured));
+  }
+
+  .featured-story-card::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background-color: hsl(var(--editorial-accent) / 0.78);
+    content: "";
+  }
+
+  .site-header {
+    background-color: hsl(var(--card) / 0.94);
+    box-shadow:
+      0 1px 0 hsl(var(--border) / 0.9),
+      0 10px 30px hsl(var(--foreground) / 0.035);
+  }
+
+  .primary-nav-link {
+    @apply relative py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary;
+  }
+
+  .primary-nav-link::after {
+    position: absolute;
+    right: 0;
+    bottom: 0.2rem;
+    left: 0;
+    height: 2px;
+    border-radius: 9999px;
+    background-color: hsl(var(--primary));
+    content: "";
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 160ms ease;
+  }
+
+  .primary-nav-link:hover::after,
+  .primary-nav-link:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  .trend-bar {
+    background-image: linear-gradient(
+      to top,
+      hsl(var(--chart-1)),
+      hsl(var(--primary) / 0.72)
+    );
+  }
+
+  .trend-bar-highlight {
+    background-image: linear-gradient(
+      to top,
+      hsl(var(--editorial-accent) / 0.88),
+      hsl(var(--editorial-accent))
+    );
   }
 
   .news-control {
