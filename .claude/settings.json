@@ -45,7 +45,11 @@
       "Bash(node --env-file=.env.local -e ' *)",
       "Bash(node --env-file-if-exists=.env --env-file-if-exists=.env.local -e ' *)",
       "Bash(git fetch *)",
-      "Bash(git rev-list *)"
+      "Bash(git rev-list *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" https://health-tech-news-axceqr1v9-bp-185a.vercel.app)",
+      "Bash(curl -sL https://health-tech-news-axceqr1v9-bp-185a.vercel.app)",
+      "Bash(curl -s -o /dev/null -w 'page: HTTP %{http_code}\\\\n' --max-time 15 https://health-tech-news-gcc.vercel.app)",
+      "Bash(curl -sL --max-time 15 https://health-tech-news-gcc.vercel.app)"
     ]
   }
 }
