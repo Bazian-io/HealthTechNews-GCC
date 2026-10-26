@@ -307,7 +307,7 @@ export function ArticleBrowser({
                         <ArticleImage
                           src={article.image_url}
                           sizes="(min-width: 640px) 8rem, 6rem"
-                          className="aspect-[4/3] w-24 shrink-0 sm:w-32"
+                          className="aspect-[4/3] w-24 shrink-0 self-start sm:w-32"
                         />
                         <div className="min-w-0 flex-1 space-y-2">
                           <div className="flex flex-wrap items-center gap-2">

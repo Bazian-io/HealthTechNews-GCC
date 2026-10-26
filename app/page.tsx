@@ -279,7 +279,7 @@ async function HomeArticles() {
                     <ArticleImage
                       src={article.image_url}
                       sizes="6rem"
-                      className="aspect-[4/3] w-24 shrink-0"
+                      className="aspect-square w-24 shrink-0 self-start"
                     />
                   </div>
                   <div className="flex items-center justify-between gap-3">
