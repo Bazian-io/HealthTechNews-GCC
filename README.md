@@ -210,7 +210,8 @@ clearing browser data also clears the list.
 ### Reader appearance
 
 The reader uses a cool slate canvas with white and faint warm feature surfaces in
-light mode, plus layered slate surfaces and soft-white text in dark mode. Teal
+light mode. Dark mode combines soft-white text, layered slate surfaces, distinct
+control and nested-panel tones, and very faint teal/burgundy background atmosphere. Teal
 remains the primary accent; muted burgundy highlights selected editorial labels
 and evidence details. Neutral borders, subtle shadows, and consistent section
 spacing carry across the homepage, article pages, and saved stories. The original Geist and

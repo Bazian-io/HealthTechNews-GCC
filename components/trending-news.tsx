@@ -73,7 +73,7 @@ function MomentumChart({ trend }: { trend: Trend }) {
     .join(", ");
 
   return (
-    <figure className="min-w-0 rounded-lg border border-border/80 bg-muted/35 p-4 sm:p-5" aria-labelledby="trend-chart-caption">
+    <figure className="dark-surface-depth min-w-0 rounded-lg border border-border/80 bg-muted/35 p-4 sm:p-5" aria-labelledby="trend-chart-caption">
       <div className="flex items-start justify-between gap-4 text-xs">
         <span className="font-medium leading-5 text-muted-foreground">Related stories by day</span>
         <span className="max-w-36 rounded-md border border-border bg-card/70 px-2.5 py-1.5 text-right font-medium leading-4 tabular-nums">
@@ -254,7 +254,7 @@ export function TrendingNews({ analysis }: { analysis: TrendingNewsAnalysis }) {
           )}
 
           <aside
-            className="editorial-border mt-7 rounded-r-md border-l-2 bg-muted/45 px-5 py-5 sm:px-6"
+            className="dark-surface-depth editorial-border mt-7 rounded-r-md border-l-2 bg-muted/45 px-5 py-5 sm:px-6"
             aria-labelledby="trend-evidence-heading"
             aria-live="polite"
           >

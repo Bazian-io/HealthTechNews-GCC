@@ -94,7 +94,7 @@ export function BriefingFreshnessBanner() {
 
   return (
     <section
-      className="mt-8 flex items-start gap-4 rounded-lg border border-border bg-muted/60 p-5 sm:p-6"
+      className="dark-surface-depth mt-8 flex items-start gap-4 rounded-lg border border-border bg-muted/60 p-5 sm:p-6"
       aria-labelledby="briefing-freshness-heading"
     >
       <span
