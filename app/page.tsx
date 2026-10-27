@@ -16,6 +16,7 @@ import {
   FEATURED_CANDIDATES,
   pickFeaturedIndex,
 } from "@/lib/article-images.mjs";
+import { tidyExcerpt } from "@/lib/article-text.mjs";
 import { analyzeTrendingNews } from "@/lib/trending-news.mjs";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
@@ -117,7 +118,7 @@ function ArticleMetadata({ article }: { article: Article }) {
 }
 
 function ArticleExcerpt({ article }: { article: Article }) {
-  const excerpt = article.summary || article.source_description;
+  const excerpt = article.summary || tidyExcerpt(article.source_description);
 
   if (!excerpt) {
     return null;

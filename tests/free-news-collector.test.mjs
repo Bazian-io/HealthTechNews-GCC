@@ -54,7 +54,7 @@ test("searches six GCC countries with text geography and supported API parameter
     assert.equal(url.searchParams.get("date"), "30d");
     assert.equal(url.searchParams.get("size"), "10");
     assert.equal(url.searchParams.get("lang"), "en");
-    assert.equal(url.searchParams.get("full_text"), "false");
+    assert.equal(url.searchParams.get("full_text"), "true");
     assert.equal(url.searchParams.get("country"), null);
     assert(!/\bOR\b|near\d+:/.test(search.query));
   }
@@ -92,6 +92,20 @@ test("missing, inferred, impossible, and future source dates stay NULL", () => {
   ]) assert.equal(createFreeNewsArticle({ ...fixture[0], ...extra }, collectedAt).published_at, null);
   assert.equal(createFreeNewsArticle({ ...fixture[0], date_source: "meta" }, collectedAt).published_at, "2026-10-09T09:00:00.000Z");
   assert.equal(createFreeNewsArticle(fixture[1], collectedAt).source_description, null);
+});
+
+test("stores only a quoted opening of the article text, never the full text", () => {
+  const opening = Array.from({ length: 18 }, (_, i) => `Dubai clinic sentence ${i + 1} describes the remote monitoring rollout in detail.`).join(" ");
+  const text = `${fixture[0].title}\n${opening}\nLATER PARAGRAPH that must not be stored anywhere in the database row.`;
+  const row = createFreeNewsArticle({ ...fixture[0], text }, collectedAt);
+  const words = row.source_lead.split(/\s+/).length;
+  assert(words >= 150 && words <= 200, `${words} words`);
+  assert.match(row.source_lead, /^Dubai clinic sentence 1 /);
+  assert(!JSON.stringify(row).includes("LATER PARAGRAPH"));
+  assert.equal(row.source_description, fixture[0].description);
+  for (const text of [undefined, null, "", "Too short to quote."]) {
+    assert.equal(createFreeNewsArticle({ ...fixture[0], text }, collectedAt).source_lead, null);
+  }
 });
 
 test("keeps only public HTTPS publisher image addresses", () => {

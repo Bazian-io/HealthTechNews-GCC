@@ -10,6 +10,7 @@ import {
   toggleSavedStory,
   writeSavedStories,
 } from "@/lib/saved-stories.mjs";
+import { tidyExcerpt } from "@/lib/article-text.mjs";
 import { cn } from "@/lib/utils";
 import { Bookmark, BookmarkCheck, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -238,7 +239,7 @@ function SavedStoryItem({ story }: { story: SavedStory }) {
   const metadata = [story.source_name, story.country, story.category, publishedDate]
     .filter(Boolean)
     .join(" · ");
-  const excerpt = story.summary || story.source_description;
+  const excerpt = story.summary || tidyExcerpt(story.source_description);
 
   return (
     <li className="rounded-lg border border-border bg-card p-6 shadow-panel sm:p-8">
