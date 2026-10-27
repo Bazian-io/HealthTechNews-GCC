@@ -405,7 +405,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <span aria-current="page">Article</span>
         </nav>
 
-        <article className="mx-auto mt-10 max-w-3xl sm:mt-14">
+        <article className="mx-auto mt-10 max-w-4xl sm:mt-14">
           <header>
             <p className="editorial-kicker">
               GCC HealthTech briefing
@@ -448,7 +448,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               <div className="mt-8">
                 <ArticleImage
                   src={article.image_url}
-                  sizes="(min-width: 768px) 48rem, 100vw"
+                  sizes="(min-width: 896px) 56rem, 100vw"
                   className="aspect-[16/9] w-full"
                   eager
                   fallback="hide"
