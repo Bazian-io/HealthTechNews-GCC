@@ -305,8 +305,11 @@ readers who prefer reduced motion). Hovering, tapping, or tabbing to a bubble sh
 its story and publisher counts, the change, and its two latest headlines.
 Teal "↑ Gaining" and burgundy "↓ Fading" tags mark the halves, a burgundy dashed
 "Steady" line divides them over faint teal and burgundy zones, and a "Fewer stories →
-More stories" axis runs along the bottom. Limited-data bubbles use a dashed outline
-while their names stay fully readable.
+More stories" axis runs along the bottom. Every period uses this styling; without
+earlier data, bubbles stay on the steady line and a "No earlier data yet" tag explains
+why. Limited-data bubbles use a dashed outline while their names stay fully readable.
+Bubble-and-label boxes never overlap and keep clear of the "Steady" tag. On narrow
+phone screens, bubbles that cannot fit side by side on the line move slightly off it.
 
 - Momentum is only shown when stories exist from before the comparison period;
   otherwise bubbles sit on one line and the chart says momentum needs earlier data.

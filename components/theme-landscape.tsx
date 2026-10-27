@@ -144,7 +144,12 @@ function Bubbles({
   onSelect: (id: string) => void;
 }) {
   const layout = useMemo(
-    () => layoutBubbles(period.themes, canvas) as Map<string, BubbleNode>,
+    () =>
+      layoutBubbles(period.themes, {
+        ...canvas,
+        // Keep bubbles clear of the "STEADY" tag at the line's right end.
+        rightMargin: tagWidth("STEADY", canvas.font) + 16,
+      }) as Map<string, BubbleNode>,
     [period, canvas],
   );
   const middle = canvas.height / 2;
@@ -188,44 +193,40 @@ function Bubbles({
         </marker>
       </defs>
 
-      {period.has_comparison && (
-        <>
-          {/* Faint teal above the steady line, faint burgundy below it. */}
-          <rect x={0} y={0} width={canvas.width} height={middle} fill={`url(#${gradientId}-gain)`} rx={8} />
-          <rect x={0} y={middle} width={canvas.width} height={axisY - middle} fill={`url(#${gradientId}-fade)`} />
-        </>
-      )}
+      {/* Faint teal above the steady line, faint burgundy below it. */}
+      <rect x={0} y={0} width={canvas.width} height={middle} fill={`url(#${gradientId}-gain)`} rx={8} />
+      <rect x={0} y={middle} width={canvas.width} height={axisY - middle} fill={`url(#${gradientId}-fade)`} />
 
       <line
         x1={0}
         // Stop short of the "STEADY" tag so the line never crosses its text.
-        x2={period.has_comparison ? canvas.width - tagWidth("STEADY", canvas.font) - 12 : canvas.width}
+        x2={canvas.width - tagWidth("STEADY", canvas.font) - 12}
         y1={middle}
         y2={middle}
-        className={period.has_comparison ? "landscape-steady" : "landscape-guide"}
+        className="landscape-steady"
         strokeDasharray="6 6"
       />
 
-      {period.has_comparison ? (
-        <>
-          <ChartTag x={6} y={8} text="↑ GAINING" tone="primary" font={canvas.font} />
-          <ChartTag x={6} y={axisY - canvas.font - 46} text="↓ FADING" tone="accent" font={canvas.font} />
-          <ChartTag
-            x={canvas.width - 6}
-            y={middle - (canvas.font + 11) / 2}
-            text="STEADY"
-            tone="accent"
-            font={canvas.font}
-            anchor="end"
-          />
-        </>
-      ) : (
+      <ChartTag x={6} y={8} text="↑ GAINING" tone="primary" font={canvas.font} />
+      <ChartTag x={6} y={axisY - canvas.font - 46} text="↓ FADING" tone="accent" font={canvas.font} />
+      <ChartTag
+        x={canvas.width - 6}
+        y={middle - (canvas.font + 11) / 2}
+        text="STEADY"
+        tone="accent"
+        font={canvas.font}
+        anchor="end"
+      />
+      {/* Same chart styling for every period; without earlier data the bubbles
+          stay on the steady line and this note explains why. */}
+      {!period.has_comparison && (
         <ChartTag
-          x={6}
+          x={canvas.width - 6}
           y={8}
-          text="MOMENTUM NEEDS EARLIER DATA"
-          tone="primary"
+          text="NO EARLIER DATA YET"
+          tone="accent"
           font={canvas.font}
+          anchor="end"
         />
       )}
 

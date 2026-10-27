@@ -126,12 +126,19 @@ test("labels fit inside big bubbles and sit clear of neighbours under small ones
       const [idA, a] = boxes[i];
       const [idB, b] = boxes[j];
       const overlap = a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
-      // Circle-based spacing is approximate for boxes; allow corner contact only.
-      const area = overlap
-        ? (Math.min(a.right, b.right) - Math.max(a.left, b.left)) * (Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top))
-        : 0;
-      assert(area < 60, `${idA} and ${idB} overlap by ${area.toFixed(0)}`);
+      assert(!overlap, `${idA} and ${idB} overlap`);
     }
+  }
+});
+
+test("bubbles sharing the steady line stay on it and keep clear of the right margin", () => {
+  const themes = ["Clinical AI", "Digital platforms", "Funding", "Virtual care"].map((label, index) => ({
+    id: `t${index}`, short_label: label, story_count: [24, 11, 2, 1][index], momentum: 0,
+  }));
+  const layout = layoutBubbles(themes, { width: 800, height: 430, rightMargin: 90 });
+  for (const node of layout.values()) {
+    assert.equal(node.y, 215, `${node.id} stays on the steady line`);
+    assert(node.x + node.halfWidth <= 800 - 90, `${node.id} stays clear of the right margin`);
   }
 });
 
