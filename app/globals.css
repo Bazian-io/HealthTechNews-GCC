@@ -32,6 +32,14 @@
     --surface-featured: 40 32% 98%;
     --surface-control: 0 0% 100%;
     --editorial-accent: 350 34% 32%;
+    /* Theme landscape colors: one hue per rule-based theme. */
+    --theme-clinical-ai: 174 60% 32%;
+    --theme-virtual-care: 210 65% 42%;
+    --theme-digital-platforms: 262 45% 48%;
+    --theme-health-data: 195 55% 35%;
+    --theme-funding: 36 85% 40%;
+    --theme-partnerships: 145 45% 32%;
+    --theme-devices: 350 55% 45%;
     --radius: 0.625rem;
     --shadow-panel: 0 1px 2px hsl(218 30% 18% / 0.04), 0 8px 24px hsl(218 30% 18% / 0.04);
     --shadow-panel-hover: 0 2px 4px hsl(218 30% 18% / 0.04), 0 8px 24px hsl(218 30% 18% / 0.06);
@@ -65,6 +73,13 @@
     --surface-featured: 218 23% 16%;
     --surface-control: 218 22% 18%;
     --editorial-accent: 350 38% 70%;
+    --theme-clinical-ai: 172 45% 60%;
+    --theme-virtual-care: 210 70% 68%;
+    --theme-digital-platforms: 262 60% 74%;
+    --theme-health-data: 192 55% 62%;
+    --theme-funding: 40 85% 62%;
+    --theme-partnerships: 145 40% 60%;
+    --theme-devices: 350 65% 72%;
     --shadow-panel: inset 0 1px 0 hsl(210 24% 94% / 0.035), 0 1px 2px hsl(220 40% 3% / 0.2), 0 10px 30px hsl(220 40% 3% / 0.14);
     --shadow-panel-hover: inset 0 1px 0 hsl(210 24% 94% / 0.045), 0 2px 4px hsl(220 40% 3% / 0.24), 0 14px 34px hsl(220 40% 3% / 0.2);
     color-scheme: dark;
@@ -126,6 +141,112 @@
     position: relative;
     overflow: hidden;
     background-color: hsl(var(--surface-featured));
+  }
+
+  /* Theme landscape bubble chart. Bubbles glide between periods. */
+  .landscape-guide {
+    stroke: hsl(var(--border));
+  }
+
+  /* The "steady" divide between gaining and fading, in editorial burgundy. */
+  .landscape-steady {
+    stroke: hsl(var(--editorial-accent) / 0.75);
+    stroke-width: 1.5;
+  }
+
+  .landscape-zone-gain {
+    stop-color: hsl(var(--primary));
+  }
+
+  .landscape-zone-fade {
+    stop-color: hsl(var(--editorial-accent));
+  }
+
+  .landscape-axis {
+    fill: hsl(var(--muted-foreground));
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  }
+
+  .landscape-axis-line {
+    stroke: hsl(var(--muted-foreground) / 0.45);
+    stroke-width: 1;
+  }
+
+  .landscape-axis-arrow {
+    fill: hsl(var(--muted-foreground) / 0.6);
+  }
+
+  .landscape-tag rect {
+    stroke-width: 1;
+  }
+
+  .landscape-tag text {
+    font-weight: 700;
+    letter-spacing: 0.12em;
+  }
+
+  .landscape-tag-primary rect {
+    fill: hsl(var(--primary) / 0.12);
+    stroke: hsl(var(--primary) / 0.35);
+  }
+
+  .landscape-tag-primary text {
+    fill: hsl(var(--primary));
+  }
+
+  .landscape-tag-accent rect {
+    fill: hsl(var(--editorial-accent) / 0.12);
+    stroke: hsl(var(--editorial-accent) / 0.4);
+  }
+
+  .landscape-tag-accent text {
+    fill: hsl(var(--editorial-accent));
+  }
+
+  .landscape-label {
+    fill: hsl(var(--foreground));
+    font-weight: 500;
+  }
+
+  .landscape-label-below {
+    font-weight: 600;
+  }
+
+  .landscape-count {
+    fill: hsl(var(--muted-foreground));
+    font-weight: 400;
+  }
+
+  .landscape-bubble {
+    cursor: pointer;
+    outline: none;
+    transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .landscape-circle {
+    transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1), fill 200ms ease;
+  }
+
+  .landscape-bubble:focus-visible .landscape-circle {
+    stroke: hsl(var(--ring)) !important;
+    stroke-width: 3px !important;
+  }
+
+  /* Limited data: dashed outline, while the name stays fully readable. */
+  .landscape-bubble-limited .landscape-circle {
+    stroke-dasharray: 4 4;
+  }
+
+  .landscape-bubble-busiest .landscape-circle {
+    filter: drop-shadow(0 0 12px hsl(var(--primary) / 0.35));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .landscape-bubble,
+    .landscape-circle {
+      transition: none;
+    }
   }
 
   /* Branded stand-in for stories without a usable publisher image. */

@@ -13,7 +13,7 @@
     "test:collector": "node --test tests/news-collector.test.mjs",
     "test:gdelt": "node --test tests/gdelt-collector.test.mjs",
     "test:free-news": "node --test tests/free-news-collector.test.mjs tests/free-news-cron.test.mjs",
-    "test:ui": "node --test tests/article-freshness.test.mjs tests/saved-stories.test.mjs tests/trending-news.test.mjs tests/article-images.test.mjs tests/story-fingerprint.test.mjs tests/article-text.test.mjs",
+    "test:ui": "node --test tests/article-freshness.test.mjs tests/saved-stories.test.mjs tests/trending-news.test.mjs tests/article-images.test.mjs tests/story-fingerprint.test.mjs tests/article-text.test.mjs tests/theme-landscape.test.mjs",
     "test:relevance": "node --test tests/relevance.test.mjs"
   },
   "dependencies": {

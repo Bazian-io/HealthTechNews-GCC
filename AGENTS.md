@@ -71,6 +71,8 @@ alone does not establish relevance. The review/publication workflow is still pla
 - Treat the weekly trend labels as transparent, rule-based briefing signals—not
   stored classifications or claims about the whole internet. A trend requires at
   least two related published stories from two distinct named publishers.
+  The theme landscape reuses those themes; never show momentum without earlier
+  data to compare against.
 
 ## Verification and operational notes
 

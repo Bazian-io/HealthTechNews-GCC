@@ -10,6 +10,10 @@ import { ProductFooter } from "@/components/product-footer";
 import { ProductHeader } from "@/components/product-header";
 import { SaveStoryButton } from "@/components/saved-stories";
 import {
+  ThemeLandscape,
+  type ThemeLandscapeAnalysis,
+} from "@/components/theme-landscape";
+import {
   TrendingNews,
   type TrendingNewsAnalysis,
 } from "@/components/trending-news";
@@ -19,6 +23,7 @@ import {
 } from "@/lib/article-images.mjs";
 import { groupSameStories } from "@/lib/story-fingerprint.mjs";
 import { tidyExcerpt } from "@/lib/article-text.mjs";
+import { analyzeThemeLandscape } from "@/lib/theme-landscape.mjs";
 import { analyzeTrendingNews } from "@/lib/trending-news.mjs";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
@@ -157,6 +162,10 @@ async function HomeArticles() {
     articles,
     Date.parse(briefingTime),
   ) as TrendingNewsAnalysis;
+  const landscapeAnalysis = analyzeThemeLandscape(
+    articles,
+    Date.parse(briefingTime),
+  ) as ThemeLandscapeAnalysis;
 
   if (hasError) {
     return (
@@ -201,6 +210,7 @@ async function HomeArticles() {
       articleTimestamps={articles.map((article) => article.created_at)}
     >
       <TrendingNews analysis={trendingAnalysis} />
+      <ThemeLandscape analysis={landscapeAnalysis} />
       <BriefingFreshnessBanner />
       <section
         id="top-stories"

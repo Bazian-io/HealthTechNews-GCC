@@ -294,6 +294,27 @@ with a short shimmer and fade-in; nothing is downloaded, rehosted, or optimized.
 - Saved stories remember the image address from the time of saving. Stories saved
   before this feature, and articles collected before 26 October 2026, have none.
 
+### Theme landscape
+
+Below "Trending this week", a bubble chart shows the same rule-based themes over a
+selectable period: this week, the last 4 weeks, or the last 8 weeks. Bubble size
+and horizontal position show how many stories a theme has; height shows the change
+against the equally long period before it. Each theme keeps one colour in light and
+dark mode, and bubbles glide to new positions when the period changes (instantly for
+readers who prefer reduced motion). Hovering, tapping, or tabbing to a bubble shows
+its story and publisher counts, the change, and its two latest headlines.
+Teal "↑ Gaining" and burgundy "↓ Fading" tags mark the halves, a burgundy dashed
+"Steady" line divides them over faint teal and burgundy zones, and a "Fewer stories →
+More stories" axis runs along the bottom. Limited-data bubbles use a dashed outline
+while their names stay fully readable.
+
+- Momentum is only shown when stories exist from before the comparison period;
+  otherwise bubbles sit on one line and the chart says momentum needs earlier data.
+- Themes with fewer than two stories are faded and marked as limited data. When
+  fewer than three themes have stories, the panel says so instead of drawing a map.
+- Counts come from stories in this briefing after same-story copies are grouped.
+  They are not stored and are not claims about coverage elsewhere.
+
 ### Trending this week
 
 The homepage groups published articles added in the past seven days into transparent
@@ -569,6 +590,8 @@ and the configured backend key.
 | [lib/article-images.mjs](lib/article-images.mjs) | Tested image URL checks, featured-story choice, minimum width, and placeholder initial |
 | [components/briefing-freshness.tsx](components/briefing-freshness.tsx) | Browser-local visit tracking, freshness banner, and new-story badges |
 | [components/trending-news.tsx](components/trending-news.tsx) | Interactive main trend, momentum graph, secondary trends, evidence, and low-activity state |
+| [components/theme-landscape.tsx](components/theme-landscape.tsx) | Interactive theme bubble chart with period switch and detail card |
+| [lib/theme-landscape.mjs](lib/theme-landscape.mjs) | Tested per-period theme counts, honest comparisons, and label-aware bubble layout |
 | [app/saved/page.tsx](app/saved/page.tsx) | `/saved`: browser-local reading list and empty state |
 | [components/saved-stories.tsx](components/saved-stories.tsx) | Saved-story provider, controls, header count, and reading-list UI |
 | [app/news/[slug]/page.tsx](app/news/[slug]/page.tsx) | `/news/[slug]`: published article details and original source link |
@@ -639,6 +662,17 @@ npx tsc --noEmit
 
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
+
+**Recorded local verification on 27 October 2026 (theme landscape, `main` working
+tree):**
+
+- Added the theme landscape bubble chart. All 130 offline tests passed, including
+  new period, comparison, limited-data, layout, and label-spacing tests; lint,
+  TypeScript for project files, `git diff --check`, and the production build passed.
+- Local screenshots covered dark and light desktop and 390px mobile, the "This week"
+  and "Last 4 weeks" periods, and the "not compared" state. A first version had
+  overlapping labels on small bubbles; labels now sit below small bubbles with
+  reserved space. No horizontal overflow, database write, commit, or deployment.
 
 **Recorded local verification on 27 October 2026 (fuller article pages,
 `Improve_UI` branch):**
