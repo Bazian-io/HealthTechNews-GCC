@@ -83,7 +83,7 @@ separate, optional relevance command. Vercel supplies
 
 ### Database setup
 
-Migration files live in [supabase/migrations](supabase/migrations). The ten
+Migration files live in [supabase/migrations](supabase/migrations). The eleven
 migrations listed below have been applied to the remote project.
 For a new checkout, verify the linked project's migration history before applying
 anything; do not reset or reseed the existing remote database.
@@ -146,9 +146,15 @@ without deploying code. The updated excerpt display is local until deployed.
   the regular page, and a new result is skipped when its headline matches a
   story published in the last 14 days or earlier in the same run. See "One card
   per story" below for the matching rules.
-- Fetches metadata only (`full_text=false`). It does not download article bodies,
-  execute instructions in responses, or call an AI service. Original publisher
-  attribution and links are retained. See the [provider's terms](https://freenewsapi.ai/legal/terms).
+- Requests article text (`full_text=true`) only to quote its opening: the first
+  complete sentences, about 150–200 words, are saved in `source_lead`, and the
+  rest of the text is discarded. Share-button text and short page-furniture lines
+  are skipped; openings under 50 usable words stay NULL. It does not visit
+  publisher pages, execute instructions in responses, or call an AI service.
+  Original publisher attribution and links are retained. See the
+  [provider's terms](https://freenewsapi.ai/legal/terms): article text belongs to
+  publishers and no licence is granted, so the quoted opening is a deliberate,
+  attributed product choice (made 27 October 2026), not a licensed reuse.
 
 Requests are sequential with a one-second gap, 15-second timeout, and 2 MiB
 response limit. Network failures, HTTP 429, and HTTP 5xx get at most one retry,
@@ -233,6 +239,27 @@ coverage. Daily chart bars have faint guide lines, and controls retain visible
 keyboard focus indicators. The sticky header uses a subtly elevated surface and
 clearer navigation states. Weekly chart labels cover the full seven-day window,
 with burgundy identifying the busiest day and teal showing the remaining activity.
+Pages use an 80rem (`max-w-7xl`) layout with wider side padding on large screens;
+the trend chart takes half its row and is taller there. Article pages use a 56rem (`max-w-4xl`)
+story column for the headline, image, and text, and saved stories use a 64rem list.
+
+### Article pages
+
+- **Opening text:** when `source_lead` exists, the page shows it under "From
+  [publisher]" as a quotation, followed by a note that it is the opening of the
+  original article and that the story continues on the publisher's website.
+  Otherwise it shows the publisher excerpt as before. Articles collected before
+  27 October 2026 have no opening text.
+- **Cleaner excerpts:** many publisher descriptions are cut at a fixed length,
+  often mid-word. Excerpts that do not end with sentence punctuation drop the
+  last, possibly partial, word and end with "…"; a trailing "Read more" is removed.
+  This applies at display time on every page, so stored text is unchanged.
+- **Story context:** "Added to briefing" shows when the story arrived. If the
+  story falls in one of this week's trends (same rule-based theme, within the
+  seven-day window), a panel names the trend with its story and publisher counts
+  and links to the homepage analysis. Themes are not shown as labels elsewhere.
+- **Continue exploring** ranks stories on the same rule-based theme first, then
+  matching topic or country fields, then the latest coverage.
 
 ### One card per story
 
@@ -488,6 +515,7 @@ The application has one table: **`public.articles`**.
 | `slug`, `status` | Website URL segment and publication state; status defaults to `draft` |
 | `source_name`, `source_description` | Publisher name/hostname and its description, when supplied |
 | `image_url` | Publisher-hosted lead image address (FreeNewsAPI.ai only), when supplied |
+| `source_lead` | Quoted opening of the publisher article, about 150–200 words (FreeNewsAPI.ai only) |
 | `summary`, `country`, `category` | Editorial/processing fields; collector leaves these empty |
 | `published_at` | Source publication date, when valid |
 | `collected_at` | When the collector first saved the article |
@@ -522,6 +550,7 @@ not a fixed list enforced by a database constraint.
 | `20260916173923_articles_add_collection_metadata.sql` | Add publisher and collection metadata |
 | `20260916174609_articles_grant_collector_access.sql` | Grant backend collector SELECT/INSERT access |
 | `20261026120000_articles_add_image_url.sql` | Add nullable, HTTPS-only publisher `image_url` (applied remotely 26 October 2026) |
+| `20261027120000_articles_add_source_lead.sql` | Add nullable `source_lead`, the quoted article opening, max 2,000 characters (applied remotely 27 October 2026) |
 
 Add a new migration for future schema changes; preserve already applied files.
 If collector saves fail with code `42501`, check the collector grant migration
@@ -536,6 +565,7 @@ and the configured backend key.
 | [components/article-image.tsx](components/article-image.tsx) | Publisher-hosted article image with loading shimmer, branded/hidden fallbacks, and small-image filtering |
 | [lib/story-fingerprint.mjs](lib/story-fingerprint.mjs) | Tested headline fingerprints and display grouping of same-story copies |
 | [components/also-reported.tsx](components/also-reported.tsx) | "Also reported by" credit for grouped copies |
+| [lib/article-text.mjs](lib/article-text.mjs) | Tested opening-text extraction and cut-off excerpt cleanup |
 | [lib/article-images.mjs](lib/article-images.mjs) | Tested image URL checks, featured-story choice, minimum width, and placeholder initial |
 | [components/briefing-freshness.tsx](components/briefing-freshness.tsx) | Browser-local visit tracking, freshness banner, and new-story badges |
 | [components/trending-news.tsx](components/trending-news.tsx) | Interactive main trend, momentum graph, secondary trends, evidence, and low-activity state |
@@ -609,6 +639,26 @@ npx tsc --noEmit
 
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
+
+**Recorded local verification on 27 October 2026 (fuller article pages,
+`Improve_UI` branch):**
+
+- Added the `source_lead` migration and applied it to the linked Supabase project;
+  it was the only pending migration. A publishable-key read of the new column
+  succeeded: 50 published rows, none with opening text yet.
+- A live FreeNewsAPI.ai sample of six articles produced openings of 100–129 words
+  ending on complete sentences; share-button text found in one was then removed.
+- The range was then raised to 150–200 words at the user's request. Fourteen live
+  articles produced openings of 151–172 words (1,084–1,292 characters, within the
+  2,000-character column limit). Two list-style market reports ended on a heading
+  line without a full stop. The applied migration's column comment still says
+  100–150 words; applied history was not rewritten.
+- All offline tests passed, including new opening-text, excerpt, theme, and
+  collector tests; lint and TypeScript for project files passed.
+- On the local dev server, an existing article showed the tidied excerpt, the
+  "Added to briefing" date, the "Part of this week's trend" panel, and related AI
+  stories in Continue exploring. The quoted opening was verified by tests only,
+  because no stored article had one yet. No collection, commit, or deployment ran.
 
 **Recorded local verification on 27 October 2026 (one card per story,
 `dedupe-stories` branch):**

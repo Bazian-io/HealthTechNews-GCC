@@ -106,7 +106,7 @@ function MomentumChart({ trend }: { trend: Trend }) {
         </span>
       </div>
       <div
-        className="chart-grid mt-5 flex h-32 items-end gap-1.5 border-b border-border px-1 sm:gap-2"
+        className="chart-grid mt-5 flex h-32 items-end lg:h-44 gap-1.5 border-b border-border px-1 sm:gap-2"
         role="img"
         aria-label={`Related stories added each day over the past ${trend.chart_counts.length} days, oldest to newest: ${chartSummary}`}
       >
@@ -226,7 +226,7 @@ export function TrendingNews({ analysis }: { analysis: TrendingNewsAnalysis }) {
         <QuietTrendState analysis={analysis} />
       ) : (
         <>
-          <div className="mt-7 grid gap-7 border-y border-border py-7 lg:grid-cols-[minmax(0,1.2fr)_minmax(17rem,0.8fr)] lg:items-center lg:gap-10">
+          <div className="mt-7 grid gap-7 border-y border-border py-7 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,1fr)] lg:items-center lg:gap-10">
             <article aria-live="polite" aria-atomic="true">
               <h3 className="font-editorial text-3xl font-medium leading-[1.15] tracking-tight sm:text-[2.125rem]">
                 {selectedTrend.headline}

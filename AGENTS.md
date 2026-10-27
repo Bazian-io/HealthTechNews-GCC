@@ -58,6 +58,8 @@ alone does not establish relevance. The review/publication workflow is still pla
   valid, non-future dates with `date_source` of `jsonld` or `meta` are stored.
   Missing provenance stays NULL. Its keyword filter is approximate, not a
   verified relevance verdict. Public UI labels source descriptions as excerpts.
+  It requests full text only to store an attributed opening (`source_lead`,
+  about 150–200 words); never store or display the full article text.
   Its `image` field is stored as `image_url` only for public HTTPS addresses;
   images stay publisher-hosted (never downloaded or rehosted) beside attribution.
 - Same-story copies are recognized by the exact headline fingerprint in

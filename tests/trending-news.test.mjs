@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   analyzeTrendingNews,
+  getArticleTopicId,
   TREND_WINDOW_HOURS,
 } from "../lib/trending-news.mjs";
 
@@ -23,6 +24,13 @@ function article(id, title, sourceName, ageHours, overrides = {}) {
     ...overrides,
   };
 }
+
+test("relates single articles to the same theme rules as weekly trends", () => {
+  assert.equal(getArticleTopicId(article("a", "Hospital launches AI-powered clinical platform", "A", 1)), "clinical-ai");
+  assert.equal(getArticleTopicId(article("b", "Startup closes Series A funding round", "B", 1)), "funding");
+  assert.equal(getArticleTopicId(article("c", "Ministry hosts annual gathering", "C", 1)), null);
+  assert.equal(getArticleTopicId(null), null);
+});
 
 test("identifies a multi-publisher topic within the last seven days", () => {
   const result = analyzeTrendingNews([

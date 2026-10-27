@@ -16,7 +16,7 @@ export default function SavedStoriesPage() {
       <main
         id="main-content"
         tabIndex={-1}
-        className="mx-auto w-full max-w-4xl flex-1 px-5 py-10 focus:outline-none sm:px-8 sm:py-14"
+        className="mx-auto w-full max-w-5xl flex-1 px-5 py-10 focus:outline-none sm:px-8 sm:py-14"
       >
         <p className="editorial-kicker editorial-accent">
           Your reading list

@@ -3,7 +3,9 @@ import { ProductFooter } from "@/components/product-footer";
 import { ProductHeader } from "@/components/product-header";
 import { SaveStoryButton } from "@/components/saved-stories";
 import { groupSameStories, storyFingerprint } from "@/lib/story-fingerprint.mjs";
+import { leadParagraphs, tidyExcerpt } from "@/lib/article-text.mjs";
 import { createClient } from "@/lib/supabase/server";
+import { analyzeTrendingNews, getArticleTopicId } from "@/lib/trending-news.mjs";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -24,7 +26,9 @@ type Article = {
   category: string | null;
   original_url: string;
   image_url: string | null;
+  source_lead: string | null;
   published_at: string | null;
+  created_at: string;
 };
 
 type DiscoveryArticle = Pick<
@@ -40,7 +44,20 @@ type DiscoveryArticle = Pick<
   | "original_url"
   | "image_url"
   | "published_at"
+  | "created_at"
 >;
+
+type ArticleTrend = {
+  id: string;
+  label: string;
+  story_count: number;
+  publisher_count: number;
+};
+
+function isSameTheme(currentArticle: Article, candidate: DiscoveryArticle) {
+  const theme = getArticleTopicId(currentArticle);
+  return Boolean(theme) && theme === getArticleTopicId(candidate);
+}
 
 function normalizeLabel(value: string | null) {
   return value?.trim().toLocaleLowerCase() ?? "";
@@ -51,6 +68,11 @@ function getDiscoveryScore(
   candidate: DiscoveryArticle,
 ) {
   let score = 0;
+
+  // The weekly trend rules' theme; used for ranking only, never shown as a label.
+  if (isSameTheme(currentArticle, candidate)) {
+    score += 3;
+  }
 
   if (
     normalizeLabel(currentArticle.category) &&
@@ -95,7 +117,7 @@ const getPublishedArticleBySlug = cache(async (slug: string) => {
   const supabase = await createClient();
   const articleResult = await supabase
     .from("articles")
-    .select("id, slug, title, summary, source_name, source_description, country, category, original_url, image_url, published_at")
+    .select("id, slug, title, summary, source_name, source_description, country, category, original_url, image_url, source_lead, published_at, created_at")
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle<Article>();
@@ -110,15 +132,16 @@ const getPublishedArticleBySlug = cache(async (slug: string) => {
   };
 });
 
-async function getDiscoveryArticles(currentArticle: Article) {
+// Recent stories power both related coverage and this week's trend context.
+async function getStoryContext(currentArticle: Article) {
   const supabase = await createClient();
   const discoveryResult = await supabase
     .from("articles")
-    .select("id, slug, title, summary, source_name, source_description, country, category, original_url, image_url, published_at")
+    .select("id, slug, title, summary, source_name, source_description, country, category, original_url, image_url, published_at, created_at")
     .eq("status", "published")
     .order("created_at", { ascending: false })
-    // Extra rows leave room after copies of the same stories are grouped.
-    .limit(20)
+    // Enough to cover the seven-day trend window at the current publishing rate.
+    .limit(200)
     .returns<DiscoveryArticle[]>();
 
   if (discoveryResult.error) {
@@ -126,26 +149,40 @@ async function getDiscoveryArticles(currentArticle: Article) {
       "Failed to load article discovery stories:",
       discoveryResult.error,
     );
+    return { articles: [], hasError: true, trend: null };
   }
+
+  // Copies of one story count once, matching the homepage's trends and lists.
+  const recentStories = groupSameStories(
+    discoveryResult.data ?? [],
+  ) as DiscoveryArticle[];
+  const analysis = analyzeTrendingNews(recentStories) as {
+    window_start: string;
+    trends: ArticleTrend[];
+  };
+  const theme = getArticleTopicId(currentArticle);
+  const isRecent =
+    Date.parse(currentArticle.created_at) >= Date.parse(analysis.window_start);
+  const trend =
+    isRecent && theme
+      ? analysis.trends.find((candidate) => candidate.id === theme) ?? null
+      : null;
 
   // Never suggest another publisher's copy of the story being read.
   const currentStory = storyFingerprint(
     currentArticle.title,
     currentArticle.source_name,
   );
-  const candidates = (
-    groupSameStories(discoveryResult.data ?? []) as DiscoveryArticle[]
-  ).filter(
+  const candidates = recentStories.filter(
     (candidate) =>
       !currentStory ||
       storyFingerprint(candidate.title, candidate.source_name) !== currentStory,
   );
 
   return {
-    articles: discoveryResult.error
-      ? []
-      : rankDiscoveryArticles(currentArticle, candidates),
-    hasError: Boolean(discoveryResult.error),
+    articles: rankDiscoveryArticles(currentArticle, candidates),
+    hasError: false,
+    trend,
   };
 }
 
@@ -197,6 +234,10 @@ function getDiscoveryLabel(
     return "Same topic";
   }
 
+  if (isSameTheme(currentArticle, candidate)) {
+    return "Related coverage";
+  }
+
   if (sameCountry) {
     return "Same country";
   }
@@ -219,7 +260,7 @@ export async function generateMetadata({
   }
 
   const description =
-    article.summary?.trim() || article.source_description?.trim() || undefined;
+    article.summary?.trim() || tidyExcerpt(article.source_description) || undefined;
   const publishedDate = article.published_at
     ? new Date(article.published_at)
     : null;
@@ -309,15 +350,23 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const {
     articles: discoveryArticles,
     hasError: discoveryHasError,
-  } = await getDiscoveryArticles(article);
+    trend,
+  } = await getStoryContext(article);
 
   const publishedDate = formatPublishedDate(article.published_at);
-  const excerpt = article.summary || article.source_description;
+  const addedDate = formatPublishedDate(article.created_at);
+  const publisher = article.source_name ?? "the publisher";
+  // A quoted opening of the publisher's article, when collected, replaces the
+  // shorter description. Both are always attributed to the publisher.
+  const leadParagraphsText = article.summary ? [] : leadParagraphs(article.source_lead);
+  const excerpt = article.summary || tidyExcerpt(article.source_description);
   const excerptLabel = article.summary
     ? "Summary"
-    : article.source_description
-      ? "Publisher excerpt"
-      : "Article summary";
+    : leadParagraphsText.length > 0
+      ? `From ${publisher}`
+      : article.source_description
+        ? "Publisher excerpt"
+        : "Article summary";
   const metadata: Array<{
     label: string;
     value: string;
@@ -344,6 +393,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   if (publishedDate) {
     metadata.push({ label: "Published", value: publishedDate });
   }
+  if (addedDate) {
+    metadata.push({ label: "Added to briefing", value: addedDate });
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -352,7 +404,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <main
         id="main-content"
         tabIndex={-1}
-        className="mx-auto w-full max-w-6xl flex-1 px-5 py-8 focus:outline-none sm:px-8 sm:py-12"
+        className="mx-auto w-full max-w-7xl flex-1 px-5 py-8 focus:outline-none sm:px-8 sm:py-12 lg:px-10"
       >
         <nav
           aria-label="Breadcrumb"
@@ -368,7 +420,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <span aria-current="page">Article</span>
         </nav>
 
-        <article className="mx-auto mt-10 max-w-3xl sm:mt-14">
+        <article className="mx-auto mt-10 max-w-4xl sm:mt-14">
           <header>
             <p className="editorial-kicker">
               GCC HealthTech briefing
@@ -411,7 +463,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               <div className="mt-8">
                 <ArticleImage
                   src={article.image_url}
-                  sizes="(min-width: 768px) 48rem, 100vw"
+                  sizes="(min-width: 896px) 56rem, 100vw"
                   className="aspect-[16/9] w-full"
                   eager
                   fallback="hide"
@@ -431,7 +483,23 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             >
               {excerptLabel}
             </h2>
-            {excerpt ? (
+            {leadParagraphsText.length > 0 ? (
+              <>
+                <blockquote
+                  cite={article.original_url}
+                  className="mt-4 space-y-5 font-editorial text-lg leading-8 sm:text-xl sm:leading-9"
+                >
+                  {leadParagraphsText.map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
+                </blockquote>
+                <p className="mt-5 border-t border-border pt-4 text-xs leading-5 text-muted-foreground">
+                  The opening of the original article by {publisher}, quoted
+                  with attribution. The full story continues on the
+                  publisher&apos;s website.
+                </p>
+              </>
+            ) : excerpt ? (
               <p className="mt-4 font-editorial text-xl leading-8 sm:text-2xl sm:leading-10">
                 {excerpt}
               </p>
@@ -442,6 +510,34 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               </p>
             )}
           </section>
+
+          {trend && (
+            <aside
+              className="dark-surface-depth editorial-border mb-8 rounded-r-md border-l-2 bg-muted/45 px-5 py-5 sm:px-6"
+              aria-labelledby="story-context-heading"
+            >
+              <h2
+                id="story-context-heading"
+                className="editorial-kicker editorial-accent"
+              >
+                Part of this week&apos;s trend
+              </h2>
+              <p className="mt-2 font-editorial text-xl font-medium">
+                {trend.label}
+              </p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                {trend.story_count} related{" "}
+                {trend.story_count === 1 ? "story" : "stories"} from{" "}
+                {trend.publisher_count} publishers in the past seven days.
+              </p>
+              <Link
+                href="/#trending-news"
+                className="mt-3 inline-block text-sm font-semibold text-primary underline-offset-4 hover:underline"
+              >
+                See this week&apos;s trends
+              </Link>
+            </aside>
+          )}
 
           <aside
             className="rounded-lg border border-border bg-card p-6 shadow-panel sm:p-8"
@@ -469,7 +565,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
         {(discoveryArticles.length > 0 || discoveryHasError) && (
           <section
-            className="mx-auto mt-14 max-w-5xl border-t border-border pt-10 sm:mt-16 sm:pt-12"
+            className="mx-auto mt-14 max-w-6xl border-t border-border pt-10 sm:mt-16 sm:pt-12"
             aria-labelledby="continue-exploring-heading"
           >
             <p className="editorial-kicker">
@@ -482,8 +578,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               Continue exploring
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              More published coverage, prioritizing stories with the same topic
-              or country when that information is available.
+              More published coverage, prioritizing stories on the same theme
+              as this one, then the latest from the briefing.
             </p>
 
             {discoveryHasError ? (
@@ -535,7 +631,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           </section>
         )}
 
-        <div className="mx-auto max-w-5xl py-8 sm:py-10">
+        <div className="mx-auto max-w-6xl py-8 sm:py-10">
           <Link
             href="/"
             className="text-sm font-semibold text-primary underline-offset-4 hover:underline"

@@ -11,7 +11,7 @@ export function ProductHeader() {
       >
         Skip to content
       </a>
-      <div className="mx-auto flex min-h-[4.5rem] w-full max-w-6xl items-center justify-between gap-3 px-5 py-2.5 sm:gap-6 sm:px-8">
+      <div className="mx-auto flex min-h-[4.5rem] w-full max-w-7xl items-center justify-between gap-3 px-5 py-2.5 sm:gap-6 sm:px-8 lg:px-10">
         <Link href="/" className="group flex items-center gap-2.5">
           <svg
             aria-hidden="true"
