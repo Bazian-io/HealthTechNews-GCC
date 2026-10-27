@@ -361,7 +361,7 @@ export default function Home() {
       <main
         id="main-content"
         tabIndex={-1}
-        className="mx-auto w-full max-w-6xl flex-1 px-5 py-8 focus:outline-none sm:px-8 sm:py-12"
+        className="mx-auto w-full max-w-7xl flex-1 px-5 py-8 focus:outline-none sm:px-8 sm:py-12 lg:px-10"
       >
         <section className="surface-hero relative w-full overflow-hidden rounded-lg border border-border border-t-[3px] border-t-primary px-6 py-8 shadow-panel sm:px-10 sm:py-10">
           <div

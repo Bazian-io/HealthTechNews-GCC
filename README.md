@@ -227,6 +227,9 @@ coverage. Daily chart bars have faint guide lines, and controls retain visible
 keyboard focus indicators. The sticky header uses a subtly elevated surface and
 clearer navigation states. Weekly chart labels cover the full seven-day window,
 with burgundy identifying the busiest day and teal showing the remaining activity.
+Pages use an 80rem (`max-w-7xl`) layout with wider side padding on large screens;
+the trend chart takes half its row and is taller there. Article body text keeps
+its narrower reading column, and saved stories use a 64rem list.
 
 ### Article images
 

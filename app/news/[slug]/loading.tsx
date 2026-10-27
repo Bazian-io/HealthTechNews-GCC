@@ -9,7 +9,7 @@ export default function ArticleLoading() {
       <main
         id="main-content"
         tabIndex={-1}
-        className="mx-auto w-full max-w-6xl flex-1 px-5 py-8 focus:outline-none sm:px-8 sm:py-12"
+        className="mx-auto w-full max-w-7xl flex-1 px-5 py-8 focus:outline-none sm:px-8 sm:py-12 lg:px-10"
         aria-busy="true"
       >
         <span className="sr-only" role="status" aria-live="polite">

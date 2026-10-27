@@ -337,7 +337,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <main
         id="main-content"
         tabIndex={-1}
-        className="mx-auto w-full max-w-6xl flex-1 px-5 py-8 focus:outline-none sm:px-8 sm:py-12"
+        className="mx-auto w-full max-w-7xl flex-1 px-5 py-8 focus:outline-none sm:px-8 sm:py-12 lg:px-10"
       >
         <nav
           aria-label="Breadcrumb"
@@ -454,7 +454,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
         {(discoveryArticles.length > 0 || discoveryHasError) && (
           <section
-            className="mx-auto mt-14 max-w-5xl border-t border-border pt-10 sm:mt-16 sm:pt-12"
+            className="mx-auto mt-14 max-w-6xl border-t border-border pt-10 sm:mt-16 sm:pt-12"
             aria-labelledby="continue-exploring-heading"
           >
             <p className="editorial-kicker">
@@ -520,7 +520,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           </section>
         )}
 
-        <div className="mx-auto max-w-5xl py-8 sm:py-10">
+        <div className="mx-auto max-w-6xl py-8 sm:py-10">
           <Link
             href="/"
             className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
