@@ -6,22 +6,19 @@ import { ArticleNewBadge } from "@/components/briefing-freshness";
 import { SaveStoryButton } from "@/components/saved-stories";
 import { getArticleDayGroup } from "@/lib/article-freshness.mjs";
 import { FEATURED_CANDIDATES } from "@/lib/article-images.mjs";
+import {
+  findCountry,
+  findTheme,
+  GCC_COUNTRY_MENTIONS,
+  matchesCountryFilter,
+  matchesThemeFilter,
+} from "@/lib/story-filters.mjs";
+import { TREND_THEMES } from "@/lib/trending-news.mjs";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 const PAGE_SIZE = 10;
-const GCC_COUNTRIES = [
-  { label: "Saudi Arabia", aliases: ["Saudi Arabia", "Saudi"] },
-  {
-    label: "United Arab Emirates",
-    aliases: ["United Arab Emirates", "UAE", "U.A.E."],
-  },
-  { label: "Qatar", aliases: ["Qatar"] },
-  { label: "Kuwait", aliases: ["Kuwait"] },
-  { label: "Bahrain", aliases: ["Bahrain"] },
-  { label: "Oman", aliases: ["Oman"] },
-] as const;
 
 type BrowseArticle = {
   id: string;
@@ -45,49 +42,6 @@ const DAY_GROUPS = [
   { id: "earlier", label: "Earlier" },
 ] as const;
 
-function getOptions(values: Array<string | null>) {
-  return Array.from(
-    new Set(
-      values
-        .filter((value): value is string => Boolean(value?.trim()))
-        .map((value) => value.trim()),
-    ),
-  ).sort((a, b) => a.localeCompare(b));
-}
-
-function normalizeCountry(value: string) {
-  return value.trim().toLocaleLowerCase().replaceAll(".", "");
-}
-
-function getCountryOption(value: string) {
-  const normalizedValue = normalizeCountry(value);
-
-  return GCC_COUNTRIES.find((option) =>
-    option.aliases.some(
-      (alias) => normalizeCountry(alias) === normalizedValue,
-    ),
-  );
-}
-
-function matchesCountry(articleCountry: string | null, selectedCountry: string) {
-  if (!selectedCountry) {
-    return true;
-  }
-
-  if (!articleCountry?.trim()) {
-    return false;
-  }
-
-  const countryOption = getCountryOption(selectedCountry);
-
-  if (!countryOption) {
-    return normalizeCountry(articleCountry) === normalizeCountry(selectedCountry);
-  }
-
-  return countryOption.aliases.some(
-    (alias) => normalizeCountry(alias) === normalizeCountry(articleCountry),
-  );
-}
 
 function getArticleMetadata(article: BrowseArticle) {
   const publishedDate = article.published_at
@@ -123,17 +77,32 @@ export function ArticleBrowser({
   const searchParams = useSearchParams();
   const search = searchParams.get("q") ?? "";
   const country = searchParams.get("country") ?? "";
-  const category = searchParams.get("topic") ?? "";
+  const theme = searchParams.get("topic") ?? "";
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  const categories = useMemo(
-    () => getOptions(articles.map((article) => article.category)),
+  // Options show how many stories each choice would find.
+  const countryOptions = useMemo(
+    () =>
+      GCC_COUNTRY_MENTIONS.map((option) => ({
+        label: option.label,
+        count: articles.filter((article) => matchesCountryFilter(article, option.label)).length,
+      })),
     [articles],
   );
-  const selectedCountry = getCountryOption(country)?.label ?? country;
+  const themeOptions = useMemo(
+    () =>
+      TREND_THEMES.map((option) => ({
+        id: option.id,
+        label: option.label,
+        count: articles.filter((article) => matchesThemeFilter(article, option.id)).length,
+      })),
+    [articles],
+  );
+  const selectedCountry = findCountry(country)?.label ?? country;
+  const selectedTheme = findTheme(theme);
 
   const normalizedSearch = search.trim().toLocaleLowerCase();
-  const hasActiveFilters = Boolean(normalizedSearch || country || category);
+  const hasActiveFilters = Boolean(normalizedSearch || country || theme);
   // Without filters, skip the stories already shown in Top stories.
   const articlesToBrowse = hasActiveFilters
     ? articles
@@ -154,8 +123,8 @@ export function ArticleBrowser({
 
     return (
       (!normalizedSearch || searchableText.includes(normalizedSearch)) &&
-      matchesCountry(article.country, country) &&
-      (!category || article.category?.trim() === category)
+      matchesCountryFilter(article, country) &&
+      matchesThemeFilter(article, theme)
     );
   });
   const visibleArticles = matchingArticles.slice(0, visibleCount);
@@ -211,9 +180,9 @@ export function ArticleBrowser({
           Browse news
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-          Search all published stories or browse the six GCC countries. Topic
-          choices appear when that information is available. Stories are grouped
-          by when they were added to the briefing.
+          Search all published stories, or narrow them to a GCC country the
+          story mentions and a theme. A story can mention several countries.
+          Stories are grouped by when they were added to the briefing.
         </p>
       </div>
 
@@ -230,8 +199,8 @@ export function ArticleBrowser({
           />
         </label>
 
-        <label className="text-sm font-medium md:w-56" htmlFor="country-filter">
-          Country
+        <label className="text-sm font-medium md:w-60" htmlFor="country-filter">
+          Mentions country
           <select
             id="country-filter"
             value={selectedCountry}
@@ -239,32 +208,32 @@ export function ArticleBrowser({
             className="news-control"
           >
             <option value="">All countries</option>
-            {GCC_COUNTRIES.map((option) => (
+            {countryOptions.map((option) => (
               <option key={option.label} value={option.label}>
-                {option.label}
+                {option.label} ({option.count})
               </option>
             ))}
           </select>
         </label>
 
-        {categories.length > 0 && (
-          <label className="text-sm font-medium md:w-48" htmlFor="category-filter">
-            Topic
-            <select
-              id="category-filter"
-              value={category}
-              onChange={(event) => updateFilter("topic", event.target.value)}
-              className="news-control"
-            >
-              <option value="">All topics</option>
-              {categories.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
+        <label className="text-sm font-medium md:w-64" htmlFor="theme-filter">
+          Theme
+          <select
+            id="theme-filter"
+            value={selectedTheme?.id ?? theme}
+            onChange={(event) => updateFilter("topic", event.target.value)}
+            className="news-control"
+          >
+            <option value="">All themes</option>
+            {themeOptions.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label} ({option.count})
+              </option>
+            ))}
+            {/* An older link may name a stored category instead of a theme. */}
+            {theme && !selectedTheme && <option value={theme}>{theme}</option>}
+          </select>
+        </label>
 
         {hasActiveFilters && (
           <button
@@ -363,9 +332,11 @@ export function ArticleBrowser({
         </div>
       ) : (
         <p className="mt-3 border-y py-6 text-sm text-muted-foreground">
-          {hasActiveFilters
-            ? "No published articles match these filters."
-            : "More news will appear here as it is published."}
+          {country && !normalizedSearch && !theme
+            ? `No published stories mention ${selectedCountry} yet.`
+            : hasActiveFilters
+              ? "No published articles match these filters."
+              : "More news will appear here as it is published."}
         </p>
       )}
 

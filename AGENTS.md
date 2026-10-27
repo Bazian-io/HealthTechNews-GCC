@@ -68,6 +68,8 @@ alone does not establish relevance. The review/publication workflow is still pla
 - Add new schema migrations under `supabase/migrations/`; do not rewrite applied
   history or reset the remote database as part of routine setup.
 - Keep website query errors distinct from valid empty results and missing articles.
+- News stream country and theme filters are display-time text matches ("mentions"),
+  never stored as article `country` or `category` values.
 - Treat the weekly trend labels as transparent, rule-based briefing signals—not
   stored classifications or claims about the whole internet. A trend requires at
   least two related published stories from two distinct named publishers.

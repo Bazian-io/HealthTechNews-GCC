@@ -294,6 +294,19 @@ with a short shimmer and fade-in; nothing is downloaded, rehosted, or optimized.
 - Saved stories remember the image address from the time of saving. Stories saved
   before this feature, and articles collected before 26 October 2026, have none.
 
+### News stream filters
+
+The news stream's **Mentions country** filter finds stories whose headline, summary,
+or publisher excerpt mentions a GCC country, its main cities, or its nationality
+(for example, Dubai, Abu Dhabi, or Emirati for the UAE). A story can mention several
+countries, and a mention is not a verified story location. The **Theme** filter uses
+the same rule-based themes as the weekly trends and theme landscape. Each option
+shows its story count, and a country with no mentions says so.
+
+Both filters run in the browser from existing page data; nothing is stored, and the
+`country` and `category` columns stay as collected. A stored country or category,
+such as the fictional test article's, still matches, so older links keep working.
+
 ### Theme landscape
 
 Below "Trending this week", a bubble chart shows the same rule-based themes over a
@@ -594,6 +607,7 @@ and the configured backend key.
 | [components/briefing-freshness.tsx](components/briefing-freshness.tsx) | Browser-local visit tracking, freshness banner, and new-story badges |
 | [components/trending-news.tsx](components/trending-news.tsx) | Interactive main trend, momentum graph, secondary trends, evidence, and low-activity state |
 | [components/theme-landscape.tsx](components/theme-landscape.tsx) | Interactive theme bubble chart with period switch and detail card |
+| [lib/story-filters.mjs](lib/story-filters.mjs) | Tested country-mention and theme matching for news stream filters |
 | [lib/theme-landscape.mjs](lib/theme-landscape.mjs) | Tested per-period theme counts, honest comparisons, and label-aware bubble layout |
 | [app/saved/page.tsx](app/saved/page.tsx) | `/saved`: browser-local reading list and empty state |
 | [components/saved-stories.tsx](components/saved-stories.tsx) | Saved-story provider, controls, header count, and reading-list UI |
@@ -665,6 +679,20 @@ npx tsc --noEmit
 
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
+
+**Recorded local verification on 27 October 2026 (news stream filters, `main` working
+tree):**
+
+- Only 1 of 51 published rows had a stored country or category (the fictional test
+  article), so the old Country and Topic filters returned almost nothing.
+- Replaced them with "Mentions country" and "Theme" filters derived from story text.
+  On the 44 grouped stories: UAE 23, Saudi Arabia 17, Qatar 4, Kuwait 1, Bahrain 0,
+  Oman 0; every story mentioned at least one GCC country. Themes: Clinical AI 24,
+  Digital health platforms 12, Funding 3, Virtual care 1, others 0.
+- All offline tests passed, including new mention, word-boundary, older-link, and
+  theme tests; lint and TypeScript for project files passed. Local screenshots
+  covered the UAE filter, the Bahrain empty state, and a combined Qatar and Clinical
+  AI filter on mobile. No database write, commit, or deployment was performed.
 
 **Recorded local verification on 27 October 2026 (theme landscape, `main` working
 tree):**
