@@ -56,7 +56,10 @@
       "Bash(lsof -nP -iTCP:3000 -sTCP:LISTEN)",
       "Read(//Applications/Google Chrome.app/Contents/MacOS/**)",
       "Bash(curl -s -o /dev/null -w \"home HTTP %{http_code}\\\\n\" --max-time 120 http://localhost:3000/)",
-      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --user-data-dir=/private/tmp/claude-501/-Users-bazianprudens-Library-Mobile-Documents-com-apple-CloudDocs-My-Files-Projects-AI-gcc-healthtech-news/faaf74cf-016d-49ce-b3b7-bdf293bd694b/scratchpad/chrome --hide-scrollbars --window-size=1280,5200 --virtual-time-budget=15000 --screenshot=/private/tmp/claude-501/-Users-bazianprudens-Library-Mobile-Documents-com-apple-CloudDocs-My-Files-Projects-AI-gcc-healthtech-news/faaf74cf-016d-49ce-b3b7-bdf293bd694b/scratchpad/home.png http://localhost:3000/)"
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --user-data-dir=/private/tmp/claude-501/-Users-bazianprudens-Library-Mobile-Documents-com-apple-CloudDocs-My-Files-Projects-AI-gcc-healthtech-news/faaf74cf-016d-49ce-b3b7-bdf293bd694b/scratchpad/chrome --hide-scrollbars --window-size=1280,5200 --virtual-time-budget=15000 --screenshot=/private/tmp/claude-501/-Users-bazianprudens-Library-Mobile-Documents-com-apple-CloudDocs-My-Files-Projects-AI-gcc-healthtech-news/faaf74cf-016d-49ce-b3b7-bdf293bd694b/scratchpad/home.png http://localhost:3000/)",
+      "Bash(git ls-tree *)",
+      "Bash(grep -cE \"sb_secret_[A-Za-z0-9]{10,}|sk-ant-[A-Za-z0-9-]{10,}\")",
+      "Bash(npm audit *)"
     ]
   }
 }

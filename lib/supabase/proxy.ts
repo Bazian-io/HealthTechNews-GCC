@@ -55,10 +55,7 @@ export async function updateSession(request: NextRequest) {
     // Article pages are public content, same as the homepage.
     !request.nextUrl.pathname.startsWith("/news") &&
     // Saved stories are a browser-local public reading list.
-    !request.nextUrl.pathname.startsWith("/saved") &&
-    // Temporary: allow the disposable Supabase connectivity check to bypass
-    // auth so it can be curled directly. Remove alongside that route.
-    !request.nextUrl.pathname.startsWith("/api/test-supabase")
+    !request.nextUrl.pathname.startsWith("/saved")
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();

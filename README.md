@@ -555,7 +555,20 @@ excerpts, not full publisher article bodies.
 Starter authentication routes remain under `/auth`: `login`, `sign-up`,
 `sign-up-success`, `forgot-password`, `update-password`, `error`, and the `confirm`
 callback. `/protected` is a starter tutorial page, not an article editor.
-`/api/test-supabase` is a connection diagnostic. There is no admin dashboard yet.
+There is no admin dashboard yet.
+
+### Security baseline
+
+- [next.config.ts](next.config.ts) sends browser security headers on every route:
+  framing is blocked (`frame-ancestors 'none'` and `X-Frame-Options: DENY`),
+  content-type guessing is disabled, cross-site referrers carry only the origin,
+  and camera, microphone, geolocation, and ad-topic APIs are disabled. Vercel adds
+  HSTS. A full Content Security Policy is not set yet.
+- The temporary public `/api/test-supabase` diagnostic was removed on 27 October
+  2026, along with its login-redirect exception.
+- Account settings outside this repository, such as disabling Supabase public
+  sign-ups and enabling GitHub Dependabot alerts and secret scanning, are managed
+  in those dashboards and are not recorded here as done.
 
 ## Checks and recorded verification
 
@@ -571,6 +584,23 @@ npx tsc --noEmit
 
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
+
+**Recorded local verification on 27 October 2026 (security baseline,
+`security-hardening` branch):**
+
+- Removed the public `/api/test-supabase` diagnostic and added the security headers
+  above. Before the change, the production diagnostic returned internal database
+  error text; the production cron route already rejected requests without its
+  secret (HTTP 401); `npm audit --omit=dev` reported zero vulnerabilities; and no
+  environment file or secret-looking key appeared in Git history.
+- All 104 offline tests, lint, TypeScript for project files, `git diff --check`,
+  and the production build passed. Stale generated types in the ignored
+  `.next/dev/types` cache still referenced the removed route and were cleared.
+- A local `next start` served all five headers on the homepage, article pages, and
+  the cron route. The removed diagnostic redirected to login like other unknown
+  private paths, the cron route still returned 401 without its secret, `/saved`
+  returned 200, and a publisher image loaded in headless Chrome.
+- No commit, deployment, database write, or dashboard setting change was performed.
 
 **Recorded local verification on 26 October 2026 (image display improvements,
 `image-improvements` branch):**
