@@ -1,4 +1,5 @@
 import { ArticleBrowser } from "@/components/article-browser";
+import { AlsoReported } from "@/components/also-reported";
 import { ArticleImage } from "@/components/article-image";
 import {
   ArticleNewBadge,
@@ -16,6 +17,7 @@ import {
   FEATURED_CANDIDATES,
   pickFeaturedIndex,
 } from "@/lib/article-images.mjs";
+import { groupSameStories } from "@/lib/story-fingerprint.mjs";
 import { analyzeTrendingNews } from "@/lib/trending-news.mjs";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
@@ -39,6 +41,7 @@ type Article = {
   category: string | null;
   published_at: string | null;
   created_at: string;
+  also_covered_by?: string[];
 };
 
 async function getPublishedArticles(): Promise<{
@@ -57,7 +60,12 @@ async function getPublishedArticles(): Promise<{
     console.error("Failed to load published articles:", error);
   }
 
-  return { articles: data ?? [], hasError: Boolean(error) };
+  // Copies of one story from different addresses appear once, so Top stories,
+  // trends, and new-story counts are not inflated by republished press releases.
+  return {
+    articles: groupSameStories(data ?? []) as Article[],
+    hasError: Boolean(error),
+  };
 }
 
 function getArticleMetadata(article: Article) {
@@ -241,7 +249,10 @@ async function HomeArticles() {
                   className="break-words font-editorial text-3xl font-medium leading-[1.15] tracking-tight transition-colors hover:text-primary sm:text-4xl"
                 />
               </h3>
-              <ArticleMetadata article={featuredArticle} />
+              <div className="space-y-1">
+                <ArticleMetadata article={featuredArticle} />
+                <AlsoReported publishers={featuredArticle.also_covered_by} />
+              </div>
               <ArticleExcerpt article={featuredArticle} />
             </div>
 
@@ -285,6 +296,7 @@ async function HomeArticles() {
                           className="break-words font-editorial text-[1.375rem] font-medium leading-snug tracking-tight transition-colors hover:text-primary"
                         />
                       </h3>
+                      <AlsoReported publishers={article.also_covered_by} />
                     </div>
                     <ArticleImage
                       src={article.image_url}

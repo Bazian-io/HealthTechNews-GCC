@@ -1,5 +1,6 @@
 "use client";
 
+import { AlsoReported } from "@/components/also-reported";
 import { ArticleImage } from "@/components/article-image";
 import { ArticleNewBadge } from "@/components/briefing-freshness";
 import { SaveStoryButton } from "@/components/saved-stories";
@@ -35,6 +36,7 @@ type BrowseArticle = {
   category: string | null;
   published_at: string | null;
   created_at: string;
+  also_covered_by?: string[];
 };
 
 const DAY_GROUPS = [
@@ -142,6 +144,7 @@ export function ArticleBrowser({
       article.summary,
       article.source_description,
       article.source_name,
+      ...(article.also_covered_by ?? []),
       article.country,
       article.category,
     ]
@@ -337,6 +340,7 @@ export function ArticleBrowser({
                               </span>
                             )}
                           </h4>
+                          <AlsoReported publishers={article.also_covered_by} />
                         </div>
                       </div>
                       <div className="flex items-center gap-3 sm:justify-end">

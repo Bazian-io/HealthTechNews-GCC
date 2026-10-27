@@ -60,6 +60,9 @@ alone does not establish relevance. The review/publication workflow is still pla
   verified relevance verdict. Public UI labels source descriptions as excerpts.
   Its `image` field is stored as `image_url` only for public HTTPS addresses;
   images stay publisher-hosted (never downloaded or rehosted) beside attribution.
+- Same-story copies are recognized by the exact headline fingerprint in
+  `lib/story-fingerprint.mjs`. The FreeNewsAPI.ai collector skips new copies;
+  the website groups stored copies for display only and never changes rows.
 - Add new schema migrations under `supabase/migrations/`; do not rewrite applied
   history or reset the remote database as part of routine setup.
 - Keep website query errors distinct from valid empty results and missing articles.

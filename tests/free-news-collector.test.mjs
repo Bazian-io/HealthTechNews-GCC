@@ -18,13 +18,26 @@ const options = (extra = {}) => ({
   fetchImpl: async () => json(), ...extra,
 });
 
-function database(existing = [], failUrl) {
+function database(existing = [], failUrl, { failRead = false } = {}) {
   const rows = new Map(existing.map((row) => [row.original_url, row]));
   return {
     rows,
     from(table) {
       assert.equal(table, "articles");
       return {
+        // Recent published headlines, read once before saving.
+        select(fields) {
+          assert.equal(fields, "title, source_name");
+          const query = {
+            eq(column, value) { assert.deepEqual([column, value], ["status", "published"]); return query; },
+            gte(column) { assert.equal(column, "created_at"); return query; },
+            async limit() {
+              if (failRead) return { data: null, error: { code: "57014", message: "PRIVATE_DETAIL" } };
+              return { data: [...rows.values()].filter((row) => row.status === "published"), error: null };
+            },
+          };
+          return query;
+        },
         upsert(row, config) {
           assert.deepEqual(config, { onConflict: "original_url", ignoreDuplicates: true });
           return {
@@ -143,6 +156,51 @@ test("real collection publishes only new rows and preserves existing drafts and 
     assert.equal(repeat.saved, 0);
     assert.deepEqual([...db.rows.values()], before);
   }
+});
+
+test("AMP copies normalize to the regular article address", () => {
+  const url = (value) => createFreeNewsArticle({ ...fixture[0], url: value }, collectedAt).original_url;
+  assert.equal(url("https://www.business-standard.com/amp/content/clinics-126102601329_1.html"), "https://www.business-standard.com/content/clinics-126102601329_1.html");
+  assert.equal(url("https://example.com/news/story/amp/?amp=1&id=2"), "https://example.com/news/story/?id=2");
+  assert.equal(url("https://example.com/news/story?outputType=amp"), "https://example.com/news/story");
+  assert.equal(url("https://example.com/AMP"), "https://example.com/");
+  // Words that merely contain "amp" are part of the real address.
+  assert.equal(url("https://example.com/ampere/Champions?amplify=1"), "https://example.com/ampere/Champions?amplify=1");
+});
+
+test("skips republished copies of a story already published recently", async () => {
+  const title = "Dubai hospital adopts digital health platform for remote patient care";
+  const existing = { original_url: "https://www.business-standard.com/content/story.html", status: "published", title, source_name: "www.business-standard.com" };
+  const db = database([existing]);
+  const copy = { ...fixture[0], title: `${title} - The Tribune`, url: "https://www.tribuneindia.com/news/story/" };
+  const result = await collectFreeNews(options({ dryRun: false, supabase: db, fetchImpl: async () => json([copy]) }));
+  assert.equal(result.saved, 0);
+  assert.equal(result.sameStory, 3);
+  assert.equal(result.duplicates, 3);
+  assert.equal(db.rows.size, 1);
+});
+
+test("keeps only the first copy of a story found twice in one run", async () => {
+  const title = "Abu Dhabi hospital launches telemedicine service for rural patients";
+  const copies = [
+    { ...fixture[0], title, url: "https://a.example.com/story" },
+    { ...fixture[0], title: title.toUpperCase(), url: "https://b.example.com/story" },
+  ];
+  const db = database();
+  const result = await collectFreeNews(options({ dryRun: false, supabase: db, fetchImpl: async () => json(copies) }));
+  assert.equal(result.saved, 1);
+  assert.equal(result.sameStory, 5);
+  assert.deepEqual([...db.rows.keys()], ["https://a.example.com/story"]);
+  const preview = await collectFreeNews(options({ fetchImpl: async () => json(copies) }));
+  assert.equal(preview.previewed, 1);
+});
+
+test("a failed headline read is reported without stopping publication", async () => {
+  const db = database([], undefined, { failRead: true });
+  const result = await collectFreeNews(options({ dryRun: false, supabase: db }));
+  assert.equal(result.saved, 2);
+  assert(result.issues.some((issue) => issue.startsWith("Could not read recent published headlines")));
+  assert(!JSON.stringify(result).includes("PRIVATE_DETAIL"));
 });
 
 test("RSS URL identities still match while RSS remains draft-only", () => {

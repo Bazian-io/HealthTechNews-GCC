@@ -2,6 +2,7 @@ import { ArticleImage } from "@/components/article-image";
 import { ProductFooter } from "@/components/product-footer";
 import { ProductHeader } from "@/components/product-header";
 import { SaveStoryButton } from "@/components/saved-stories";
+import { groupSameStories, storyFingerprint } from "@/lib/story-fingerprint.mjs";
 import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -116,7 +117,8 @@ async function getDiscoveryArticles(currentArticle: Article) {
     .select("id, slug, title, summary, source_name, source_description, country, category, original_url, image_url, published_at")
     .eq("status", "published")
     .order("created_at", { ascending: false })
-    .limit(13)
+    // Extra rows leave room after copies of the same stories are grouped.
+    .limit(20)
     .returns<DiscoveryArticle[]>();
 
   if (discoveryResult.error) {
@@ -126,10 +128,23 @@ async function getDiscoveryArticles(currentArticle: Article) {
     );
   }
 
+  // Never suggest another publisher's copy of the story being read.
+  const currentStory = storyFingerprint(
+    currentArticle.title,
+    currentArticle.source_name,
+  );
+  const candidates = (
+    groupSameStories(discoveryResult.data ?? []) as DiscoveryArticle[]
+  ).filter(
+    (candidate) =>
+      !currentStory ||
+      storyFingerprint(candidate.title, candidate.source_name) !== currentStory,
+  );
+
   return {
     articles: discoveryResult.error
       ? []
-      : rankDiscoveryArticles(currentArticle, discoveryResult.data ?? []),
+      : rankDiscoveryArticles(currentArticle, candidates),
     hasError: Boolean(discoveryResult.error),
   };
 }

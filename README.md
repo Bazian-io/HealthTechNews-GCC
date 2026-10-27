@@ -29,7 +29,7 @@ changes remain local until their production deployment completes.
 | Product favicon, social preview, metadata, and theme control | Summarization and classification |
 | Database error messages and article-not-found page | Review/publication workflow |
 | Unique slugs; published articles must have a nonblank slug | Persistent collection run history and alerting |
-| FreeNewsAPI.ai collection and publication; RSS/GDELT drafts; duplicate URL checks | Cross-publisher story matching |
+| FreeNewsAPI.ai collection and publication; RSS/GDELT drafts; duplicate URL and same-headline checks | Similar-headline (fuzzy) story matching |
 | Collector tests, dry-run preview, and run counts | Review GDELT search quality against real results |
 | Optional read-only Claude relevance checker and labelled examples | — |
 
@@ -141,8 +141,11 @@ without deploying code. The updated excerpt display is local until deployed.
   only with `date_source = jsonld` or `meta` and a valid, non-future timestamp;
   missing provenance and crawl-time fallbacks stay NULL.
 - Reuses the existing duplicate-safe insert. Existing rows, including drafts
-  from RSS/GDELT, are never overwritten or automatically promoted. Different
-  publisher URLs for the same story can still appear separately.
+  from RSS/GDELT, are never overwritten or automatically promoted.
+- Skips copies of a story it has already published: AMP addresses are stored as
+  the regular page, and a new result is skipped when its headline matches a
+  story published in the last 14 days or earlier in the same run. See "One card
+  per story" below for the matching rules.
 - Fetches metadata only (`full_text=false`). It does not download article bodies,
   execute instructions in responses, or call an AI service. Original publisher
   attribution and links are retained. See the [provider's terms](https://freenewsapi.ai/legal/terms).
@@ -157,9 +160,12 @@ published during a partially failed run, which exits with code 1.
 The command prints a starting message and a final JSON report. `found` counts
 raw returned rows, `filtered` counts rejected keyword matches, `invalid` counts
 unusable rows, and `saved` counts new published articles. `duplicates` includes
-overlapping search results and existing database URLs. `searches` reports API
+overlapping search results, existing database URLs, and same-story copies;
+`sameStory` counts the headline matches alone. `searches` reports API
 failures separately from database save failures. Dry runs save nothing and show
-up to ten previews, but cannot identify duplicates already in Supabase.
+up to ten previews, but cannot identify duplicates already in Supabase. If the
+recent-headline read fails, the run still publishes and reports that copies were
+not filtered against the database.
 
 No new database migration or dependency is required. The existing collection
 metadata and backend INSERT/SELECT grants are sufficient.
@@ -227,6 +233,23 @@ coverage. Daily chart bars have faint guide lines, and controls retain visible
 keyboard focus indicators. The sticky header uses a subtly elevated surface and
 clearer navigation states. Weekly chart labels cover the full seven-day window,
 with burgundy identifying the busiest day and teal showing the remaining activity.
+
+### One card per story
+
+Publishers often republish the same press release, and some pages also exist as
+an AMP mobile copy. [lib/story-fingerprint.mjs](lib/story-fingerprint.mjs) gives
+each headline a fingerprint: lowercase words without punctuation or accents, with
+a trailing publisher name such as " - The Tribune" removed only when it matches
+that publisher's address. Headlines with fewer than four words never match.
+
+- The FreeNewsAPI.ai collector uses the fingerprint to skip new copies (see above).
+- The website groups stored copies with the same fingerprint, so Top stories, the
+  news stream, trends, new-story counts, and Continue exploring show each story
+  once. The card uses the earliest copy with an image, preferring a regular page
+  over AMP, and lists the other publishers as "Also reported by".
+- Matching is exact. Differently worded headlines about the same event, such as
+  "launches" versus "unveils", stay separate to avoid merging distinct stories.
+- Grouping is display-only: stored rows are not changed, unpublished, or deleted.
 
 ### Article images
 
@@ -511,6 +534,8 @@ and the configured backend key.
 | [app/page.tsx](app/page.tsx) | `/`: published articles ordered by insertion time, newest first, with attributed source excerpts |
 | [components/article-browser.tsx](components/article-browser.tsx) | Searchable, filtered, paginated, and day-grouped homepage news stream |
 | [components/article-image.tsx](components/article-image.tsx) | Publisher-hosted article image with loading shimmer, branded/hidden fallbacks, and small-image filtering |
+| [lib/story-fingerprint.mjs](lib/story-fingerprint.mjs) | Tested headline fingerprints and display grouping of same-story copies |
+| [components/also-reported.tsx](components/also-reported.tsx) | "Also reported by" credit for grouped copies |
 | [lib/article-images.mjs](lib/article-images.mjs) | Tested image URL checks, featured-story choice, minimum width, and placeholder initial |
 | [components/briefing-freshness.tsx](components/briefing-freshness.tsx) | Browser-local visit tracking, freshness banner, and new-story badges |
 | [components/trending-news.tsx](components/trending-news.tsx) | Interactive main trend, momentum graph, secondary trends, evidence, and low-activity state |
@@ -584,6 +609,22 @@ npx tsc --noEmit
 
 The collector tests run without network or database access. Use `npm run build`
 for a production build and `npm run start` to serve that build.
+
+**Recorded local verification on 27 October 2026 (one card per story,
+`dedupe-stories` branch):**
+
+- The live Top stories showed three copies of one press release: Business
+  Standard's regular and AMP pages and a Tribune India republication.
+- Added AMP address normalization, collector same-headline skipping, and website
+  grouping with "Also reported by" credits. All 114 offline tests passed,
+  including new fingerprint, grouping, AMP, same-run, recent-story, and failed-read
+  tests; lint, TypeScript for project files, `git diff --check`, and the production
+  build passed.
+- A read-only check of the 50 published rows grouped them into 44 stories. All six
+  hidden copies had identical headlines apart from a matching publisher ending.
+  A local production server showed four distinct Top stories, the Clinics On Cloud
+  card linked to the regular Business Standard page with Tribune India credited,
+  and article pages loaded. No database write, commit, or deployment was performed.
 
 **Recorded local verification on 27 October 2026 (security baseline,
 `security-hardening` branch):**
